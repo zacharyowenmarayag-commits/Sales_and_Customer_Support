@@ -12,6 +12,16 @@ models:
     provider: openai
     model: gpt-5
     apiKey: YOUR_OPENAI_API_KEY_HERE
+  - name: OpenRouter via OmniRoute
+    provider: openai
+    model: openai/gpt-oss-20b:free
+    apiBase: http://localhost:20128/v1
+    apiKey: CHANGEME
+    roles:
+    - chat
+    - edit
+    - apply
+    - autocomplete
   - name: qwen2.5-coder 7b
     provider: ollama
     model: qwen2.5-coder:7b

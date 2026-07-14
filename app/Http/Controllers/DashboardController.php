@@ -14,9 +14,33 @@ class DashboardController extends Controller
         return view('ASSCM.index');
     }
 
-    public function sprf()
+    public function sprf(Request $request)
     {
-        return view('SPRF.index');
+        $dateRange = $request->query('date_range', 'May 1 - May 31, 2026');
+
+        $kpis = \App\Models\KpiStat::where('date_range', $dateRange)->first();
+        if (!$kpis) {
+            $dateRange = 'May 1 - May 31, 2026';
+            $kpis = \App\Models\KpiStat::where('date_range', $dateRange)->first();
+        }
+
+        $regionSales = \App\Models\RegionSale::where('date_range', $dateRange)->get();
+        $repSales = \App\Models\RepSale::where('date_range', $dateRange)->get();
+        $forecastTargets = \App\Models\ForecastTarget::where('date_range', $dateRange)->get();
+        $productSales = \App\Models\ProductSale::where('date_range', $dateRange)->get();
+        $salesPerformance = \App\Models\SalesPerformance::where('date_range', $dateRange)->get();
+        $recentDeals = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', true)->get();
+
+        return view('SPRF.index', [
+            'dateRange' => $dateRange,
+            'kpis' => $kpis,
+            'regionSales' => $regionSales,
+            'repSales' => $repSales,
+            'forecastTargets' => $forecastTargets,
+            'productSales' => $productSales,
+            'salesPerformance' => $salesPerformance,
+            'recentDeals' => $recentDeals,
+        ]);
     }
 
     public function som(Request $request)
@@ -62,8 +86,6 @@ class DashboardController extends Controller
         ]);
     }
 
-
-
     public function crmCustomers(Request $request)
     {
         CrmStorage::ensureSeeded();
@@ -76,8 +98,6 @@ class DashboardController extends Controller
             'q' => $q,
         ]);
     }
-
-
 
     public function crmPurchaseHistory()
     {
@@ -101,9 +121,6 @@ class DashboardController extends Controller
         ]);
     }
 
-
-
-
     public function crmFollowup(Request $request)
     {
         CrmStorage::ensureSeeded();
@@ -122,10 +139,7 @@ class DashboardController extends Controller
             'q' => $q,
             'status' => $status,
         ]);
-
     }
-
-
 
     public function crmSegmentation()
     {
@@ -148,10 +162,22 @@ class DashboardController extends Controller
         ]);
     }
 
-
-
-    public function sprfDeals()
+    public function sprfDeals(Request $request)
     {
-        return view('SPRF.deals');
+        $dateRange = $request->query('date_range', 'May 1 - May 31, 2026');
+
+        $hasData = \App\Models\Deal::where('date_range', $dateRange)->exists();
+        if (!$hasData) {
+            $dateRange = 'May 1 - May 31, 2026';
+        }
+
+        $ongoingDeals = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', true)->get();
+        $pastDeals = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', false)->get();
+
+        return view('SPRF.deals', [
+            'dateRange' => $dateRange,
+            'ongoingDeals' => $ongoingDeals,
+            'pastDeals' => $pastDeals,
+        ]);
     }
 }
