@@ -336,8 +336,16 @@
                     <h2>Revenue Growth</h2>
                     <p class="small">Status: <span class="status"><i class="fas fa-circle"></i> Growing (+16.3%)</span></p>
                 </div>
-                <button>Last 6 months <i class="fas fa-angle-down"></i></button>
+                <a
+                    href="{{ route('crm.purchaseHistory', array_filter(['q' => request()->query('q'), 'period' => '6'])) }}"
+                    class="inline-flex items-center gap-2"
+                >
+
+                    <span>Last 6 months</span>
+                    <i class="fas fa-angle-down"></i>
+                </a>
             </div>
+
 
             <p class="small">Revenue trend over the last 6 months</p>
 
@@ -395,38 +403,13 @@
                 </div>
             </div>
 
-            <button class="task-btn">View All Tasks</button>
+            <a href="{{ route('crm.followup') }}" class="task-btn text-center inline-flex items-center justify-center">
+                <span>View All Tasks</span>
+            </a>
+
         </section>
     </div>
 
-    <footer class="page-footer">
-        <div class="footer-container">
-            <div class="footer-box">
-                <h3>Support</h3>
-                <p>AMBATUGROW</p>
-                <p>ambatugrow@gmail.com</p>
-                <p>+63 915 888 8888</p>
-            </div>
-            <div class="footer-box">
-                <h3>Account</h3>
-                <ul>
-                    <li><a href="#">My Account</a></li>
-                    <li><a href="#">Login / Register</a></li>
-                    <li><a href="#">Cart</a></li>
-                    <li><a href="#">Wishlist</a></li>
-                    <li><a href="#">Shop</a></li>
-                </ul>
-            </div>
-            <div class="footer-box">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Use</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-    </footer>
+    
 </div>
 @endsection

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FollowUp;
+use App\Support\ArrayPaginator;
+use App\Support\CrmStorage;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -109,12 +112,33 @@ class DashboardController extends Controller
 
     public function crmDashboard()
     {
-        return view('CRM.dashboard');
+        CrmStorage::ensureSeeded();
+
+        $customersCount = count(CrmStorage::distinctCustomers());
+        $logsCount = CrmStorage::communicationLogsCount();
+
+        $pendingFollowUps = CrmStorage::followUpsCountByStatus('Pending');
+        $completedFollowUps = CrmStorage::followUpsCountByStatus('Completed');
+
+        return view('CRM.dashboard', [
+            'customersCount' => $customersCount,
+            'logsCount' => $logsCount,
+            'pendingFollowUps' => $pendingFollowUps,
+            'completedFollowUps' => $completedFollowUps,
+        ]);
     }
 
-    public function crmCustomers()
+    public function crmCustomers(Request $request)
     {
-        return view('CRM.customer');
+        CrmStorage::ensureSeeded();
+
+        $q = $request->query('q');
+        $customers = ArrayPaginator::make(CrmStorage::listCustomers($q), $request);
+
+        return view('CRM.customer', [
+            'customers' => $customers,
+            'q' => $q,
+        ]);
     }
 
     public function crmPurchaseHistory()
@@ -122,19 +146,62 @@ class DashboardController extends Controller
         return view('CRM.purchase-history');
     }
 
-    public function crmCommunicationLogs()
+    public function crmCommunicationLogs(Request $request)
     {
-        return view('CRM.comlog');
+        CrmStorage::ensureSeeded();
+
+        $q = $request->query('q');
+
+        $logs = ArrayPaginator::make(CrmStorage::listCommunicationLogs($q, null), $request);
+        $customers = CrmStorage::distinctCustomers();
+
+        return view('CRM.comlog', [
+            'logs' => $logs,
+            'customers' => $customers,
+            'subjects' => \App\Models\CommunicationLog::SUBJECTS,
+            'q' => $q,
+        ]);
     }
 
-    public function crmFollowup()
+    public function crmFollowup(Request $request)
     {
-        return view('CRM.followup');
+        CrmStorage::ensureSeeded();
+
+        $q = $request->query('q');
+        $status = $request->query('status');
+
+        if ($status && !in_array($status, FollowUp::STATUSES, true)) {
+            $status = null;
+        }
+
+        $followUps = ArrayPaginator::make(CrmStorage::listFollowUps($q, $status), $request);
+
+        return view('CRM.followup', [
+            'followUps' => $followUps,
+            'q' => $q,
+            'status' => $status,
+        ]);
     }
 
     public function crmSegmentation()
     {
-        return view('CRM.segmentation');
+        CrmStorage::ensureSeeded();
+
+        $allCustomers = CrmStorage::distinctCustomers();
+        $customersWithFollowUps = CrmStorage::customersWithFollowUps();
+
+        $prospectCount = count(array_values(array_diff($allCustomers, $customersWithFollowUps)));
+        $activeCount = count($customersWithFollowUps);
+
+        $vipCustomers = CrmStorage::customersWithPurchases();
+
+        $vipCount = count($vipCustomers);
+
+        return view('CRM.segmentation', [
+            'prospectCount' => $prospectCount,
+            'activeCount' => $activeCount,
+            'vipCount' => $vipCount,
+        ]);
     }
 
     public function sprfDeals(Request $request)
