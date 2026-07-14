@@ -4,6 +4,10 @@
 
 @push('styles')
 <style>
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+
     .content {
         padding: 0;
     }
@@ -18,12 +22,15 @@
     }
 
     .header h1 {
-        font-size: 28px;
+        font-size: 30px;
+        font-weight: 700;
+        color: #111827;
     }
 
     .header p {
-        color: #888;
-        margin-top: 5px;
+        color: #6b7280;
+        margin-top: 4px;
+        font-size: 14px;
     }
 
     .search-box {
@@ -286,8 +293,8 @@
 <div class="content">
     <div class="header">
         <div>
-            <h1>Dashboard Overview</h1>
-            <p>Welcome back, Ariel. Here's what's happening today.</p>
+            <h1>Customer Relationship Management (CRM)</h1>
+            <p>Maintains comprehensive customer data and supports relationship-building activities to improve satisfaction and retention.</p>
         </div>
 
         <div class="search-box">

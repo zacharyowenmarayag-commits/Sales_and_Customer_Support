@@ -8,6 +8,25 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        try {
+            $sprfKpis    = \App\Models\KpiStat::where('date_range', 'May 1 - May 31, 2026')->first();
+            $recentDeals = \App\Models\Deal::where('is_ongoing', true)->take(5)->get();
+        } catch (\Exception $e) {
+            $sprfKpis    = null;
+            $recentDeals = collect();
+        }
+
+        $somOrders = 6;
+
+        return view('dashboard.index', [
+            'sprfKpis'    => $sprfKpis,
+            'somOrders'   => $somOrders,
+            'recentDeals' => $recentDeals,
+        ]);
+    }
+
+    public function asscm()
+    {
         return view('ASSCM.index');
     }
 
@@ -63,6 +82,29 @@ class DashboardController extends Controller
             'orders' => $orders,
             'counts' => $counts,
         ]);
+    }
+
+    public function somNewOrder()
+    {
+        $products = [
+            ['id' => 'IM-PC-001', 'name' => 'Lucky Me! Pancit Canton — Chilimansi', 'stock' => 500, 'price' => 15.00],
+            ['id' => 'IM-CP-01',  'name' => 'Rebisco Crackers (10s pack)',           'stock' => 150, 'price' => 42.50],
+            ['id' => 'IM-CF-01',  'name' => 'Chippy BBQ Flavored Corn Chips (110g)', 'stock' => 80,  'price' => 55.00],
+            ['id' => 'IM-BC-01',  'name' => 'Bear Brand Sterilized Milk (33ml)',     'stock' => 300, 'price' => 18.00],
+            ['id' => 'IM-SK-01',  'name' => 'Skyflakes Crackers (10s pack)',         'stock' => 220, 'price' => 38.00],
+            ['id' => 'IM-JC-01',  'name' => 'Jollibee Chicken Joy (1pc)',            'stock' => 60,  'price' => 99.00],
+        ];
+
+        $customers = [
+            'Jollipop Foods Corporation',
+            'SM Retail Inc.',
+            'Puregold Price Club',
+            "Robinson's Supermarket",
+            'Mercury Drug Corporation',
+            '7-Eleven Philippines',
+        ];
+
+        return view('SOM.new-order', compact('products', 'customers'));
     }
 
     public function crmDashboard()

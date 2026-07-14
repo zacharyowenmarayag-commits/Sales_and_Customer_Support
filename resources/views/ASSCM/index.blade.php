@@ -6,8 +6,8 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">ASSCM Dashboard</h1>
-            <p class="text-sm text-gray-500 mt-1">Track service cases, response time, and customer outcomes.</p>
+            <h1 class="text-3xl font-bold text-gray-900">After-Sales Support and Case Management</h1>
+            <p class="text-sm text-gray-500 mt-1">Supports issue resolution, service requests, and warranty claims after the sale is completed.</p>
         </div>
         <a href="#" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
             <i class="fas fa-plus mr-2"></i> New case

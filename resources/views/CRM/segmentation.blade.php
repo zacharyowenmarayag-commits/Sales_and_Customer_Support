@@ -4,6 +4,8 @@
 
 @push('styles')
 <style>
+    * { font-family: 'Inter', sans-serif; }
+
     .segmentation-content {
         padding: 0;
     }
@@ -18,12 +20,15 @@
     }
 
     .segmentation-header h1 {
-        font-size: 28px;
+        font-size: 30px;
+        font-weight: 700;
+        color: #111827;
     }
 
     .segmentation-header p {
-        color: #888;
-        margin-top: 6px;
+        color: #6b7280;
+        margin-top: 4px;
+        font-size: 14px;
     }
 
     .header-right {
@@ -132,17 +137,19 @@
     }
 
     .table-card thead th {
-        padding: 15px;
+        padding: 12px 16px;
         text-align: left;
-        font-size: 14px;
-        color: #666;
-        border-bottom: 1px solid #e5e5e5;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
     }
 
     .table-card tbody td {
-        padding: 16px;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 14px 16px;
+        border-bottom: 1px solid #f3f4f6;
         font-size: 14px;
+        color: #374151;
     }
 
     .table-card tbody tr:hover {

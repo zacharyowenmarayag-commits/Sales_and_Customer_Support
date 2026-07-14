@@ -4,6 +4,7 @@
 
 @push('styles')
 <style>
+* { font-family: 'Inter', sans-serif; }
 /* === Calendar Popup Styles (shared with SPRF index) === */
 .cal-grid-month {
     display: grid;
@@ -67,7 +68,7 @@
 @endpush
 
 @section('content')
-<div class="space-y-6 py-6">
+<div class="space-y-6">
     <!-- Header & Toolbar Row -->
     <div class="flex justify-between items-center">
         <a href="{{ route('sprf', ['date_range' => $dateRange]) }}" class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-800 transition duration-150 select-none">

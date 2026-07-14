@@ -6,15 +6,15 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center mb-1">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Sales orders</h1>
-            <p class="text-sm text-gray-500 mt-1">Sales Order Management</p>
+            <h1 class="text-3xl font-bold text-gray-900">Sales Order Management</h1>
+            <p class="text-sm text-gray-500 mt-1">Handles the entire sales order lifecycle–from quotation to order fulfillment–ensuring smooth and accurate transaction processing.</p>
         </div>
         <div class="flex space-x-3 items-center">
             <div class="relative w-64">
                 <input type="text" placeholder="Search" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-green-600 pl-8">
                 <i class="fas fa-search absolute left-2.5 top-2.5 text-gray-400 text-xs"></i>
             </div>
-            <a href="#" class="bg-green-700 hover:bg-green-800 text-white px-4 py-1.5 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+            <a href="{{ route('som.new-order') }}" class="bg-green-700 hover:bg-green-800 text-white px-4 py-1.5 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
                 <i class="fas fa-plus mr-2 text-xs"></i> New order
             </a>
         </div>

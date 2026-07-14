@@ -14,13 +14,13 @@
     --sprf-orange: #e08a3a;
 }
 
-body {
-    margin: 0;
+* {
+    font-family: 'Inter', sans-serif;
 }
 
 .sprf-page {
     margin: 0;
-    padding: 24px 0;
+    padding: 0;
 }
 
 .sprf-toolbar {
@@ -519,11 +519,12 @@ body {
 
 <div class="sprf-page">
     <!-- Header & Toolbar Row -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-            <!-- Spacer or Back button if needed -->
+            <h1 class="text-3xl font-bold text-gray-900">Sales Performance Reporting and Forecasting</h1>
+            <p class="text-sm text-gray-500 mt-1">Provides data-driven insights into sales activities, team performance, and future sales trends.</p>
         </div>
-        <div class="sprf-toolbar mb-0">
+        <div class="sprf-toolbar mb-0 flex-shrink-0">
             <!-- Calendar icon button (Functional, opens date range popup) -->
             <div id="sprf-cal-trigger" class="sprf-icon-btn" onclick="openCalendarPopup('sprf-cal-popup', '{{ $dateRange }}')"><i class="fa-regular fa-calendar text-xs"></i></div>
             
