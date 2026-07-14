@@ -7,6 +7,7 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::redirect('/sprf', '/SPRF');
 Route::get('/SPRF', [DashboardController::class, 'sprf'])->name('sprf');
 Route::get('/som', [DashboardController::class, 'som'])->name('som');
+Route::get('/som/create', [DashboardController::class, 'createOrder'])->name('som.create');
 
 Route::prefix('crm')->name('crm.')->group(function () {
     Route::get('/', [DashboardController::class, 'crmDashboard'])->name('dashboard');
