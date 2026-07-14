@@ -166,7 +166,8 @@
 
     <div class="page-title">New sales order</div>
 
-    <div class="order-layout">
+    <form action="{{ route('som.save-order') }}" method="POST" id="new-order-form" class="order-layout">
+        @csrf
 
         <!-- LEFT: Form -->
         <div class="space-y-4">
@@ -176,10 +177,10 @@
                 <div class="order-card-section">
                     <div class="section-label">Customer</div>
                     <div class="customer-select-wrap">
-                        <select class="customer-search-input" id="customer-select">
+                        <select name="customer_id" class="customer-search-input" id="customer-select" required>
                             <option value="" disabled selected>Search customer name</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer }}">{{ $customer }}</option>
+                                <option value="{{ $customer->customer_id }}">{{ $customer->first_name }} {{ $customer->last_name }}</option>
                             @endforeach
                         </select>
                         <i class="fas fa-chevron-down customer-select-icon"></i>
@@ -223,6 +224,7 @@
                                     <td style="text-align:right;">
                                         <input
                                             type="number"
+                                            name="products[{{ $product['id'] }}][qty]"
                                             class="qty-input"
                                             value="0"
                                             min="0"
@@ -256,7 +258,7 @@
             <div class="order-card">
                 <div class="order-card-section">
                     <div class="section-label">Discount (%)</div>
-                    <input type="number" class="discount-input" id="discount-input" value="0" min="0" max="100" oninput="recalcSummary()">
+                    <input type="number" name="discount" class="discount-input" id="discount-input" value="0" min="0" max="100" oninput="recalcSummary()">
                     <div class="discount-hint">Applied to subtotal before 12% VAT</div>
                 </div>
             </div>
@@ -304,7 +306,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
 </div>
 @endsection
@@ -377,7 +379,7 @@
             alert('Please select a customer before confirming.');
             return;
         }
-        alert('Order confirmed! (This is a prototype — backend submission coming soon.)');
+        document.getElementById('new-order-form').submit();
     }
 </script>
 @endpush

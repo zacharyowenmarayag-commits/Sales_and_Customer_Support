@@ -7,11 +7,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SprfController;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/asscm', [DashboardController::class, 'asscm'])->name('asscm');
+Route::post('/asscm', [DashboardController::class, 'asscmStore'])->name('asscm.store');
 Route::redirect('/sprf', '/SPRF');
-Route::get('/SPRF', [SprfController::class, 'index'])->name('sprf');
+Route::get('/SPRF', [DashboardController::class, 'sprf'])->name('sprf');
 Route::get('/som', [DashboardController::class, 'som'])->name('som');
+Route::get('/db-schema', [DashboardController::class, 'dbSchema'])->name('db-schema');
 
 Route::get('/som/new-order', [DashboardController::class, 'somNewOrder'])->name('som.new-order');
+Route::post('/som/new-order', [DashboardController::class, 'somSaveOrder'])->name('som.save-order');
 
 Route::prefix('crm')->name('crm.')->group(function () {
     Route::get('/', [DashboardController::class, 'crmDashboard'])->name('dashboard');

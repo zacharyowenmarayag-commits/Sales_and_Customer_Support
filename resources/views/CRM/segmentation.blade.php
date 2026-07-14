@@ -302,26 +302,26 @@
         <div class="card">
             <div class="circle green"><i class="fas fa-user"></i></div>
             <h5>New Customers</h5>
-            <h2>120</h2>
-            <span>8.0%</span>
+            <h2>{{ $newCount }}</h2>
+            <span>{{ $totalCount > 0 ? number_format(($newCount / $totalCount) * 100, 1) : 0 }}%</span>
         </div>
         <div class="card">
             <div class="circle blue"><i class="fas fa-users"></i></div>
             <h5>Regular Customers</h5>
-            <h2>650</h2>
-            <span>52.0%</span>
+            <h2>{{ $regularCount }}</h2>
+            <span>{{ $totalCount > 0 ? number_format(($regularCount / $totalCount) * 100, 1) : 0 }}%</span>
         </div>
         <div class="card">
             <div class="circle purple"><i class="fas fa-crown"></i></div>
             <h5>VIP Customers</h5>
-            <h2>250</h2>
-            <span>20.0%</span>
+            <h2>{{ $vipCount }}</h2>
+            <span>{{ $totalCount > 0 ? number_format(($vipCount / $totalCount) * 100, 1) : 0 }}%</span>
         </div>
         <div class="card">
             <div class="circle red"><i class="fas fa-user-slash"></i></div>
             <h5>Inactive Customers</h5>
-            <h2>230</h2>
-            <span>16.4%</span>
+            <h2>{{ $inactiveCount }}</h2>
+            <span>{{ $totalCount > 0 ? number_format(($inactiveCount / $totalCount) * 100, 1) : 0 }}%</span>
         </div>
     </div>
 
@@ -339,9 +339,9 @@
             <tbody>
                 <tr>
                     <td class="new">New Customers</td>
-                    <td>Customers who registered within the last 3 months.</td>
-                    <td>120</td>
-                    <td>₱1,250,000</td>
+                    <td>Customers who registered within the last 30 days.</td>
+                    <td>{{ $newCount }}</td>
+                    <td>₱{{ number_format($newRevenue, 2) }}</td>
                     <td>
                         <a href="{{ route('crm.customers', ['q' => 'New']) }}" title="Edit segment customers" class="text-gray-500 hover:text-green-700">
                             <i class="fas fa-pen"></i>
@@ -355,8 +355,8 @@
                 <tr>
                     <td class="regular">Regular Customers</td>
                     <td>Customers with regular purchases.</td>
-                    <td>650</td>
-                    <td>₱4,200,000</td>
+                    <td>{{ $regularCount }}</td>
+                    <td>₱{{ number_format($regularRevenue, 2) }}</td>
                     <td>
                         <a href="{{ route('crm.customers', ['q' => 'Regular']) }}" title="Edit segment customers" class="text-gray-500 hover:text-green-700">
                             <i class="fas fa-pen"></i>
@@ -370,8 +370,8 @@
                 <tr>
                     <td class="vip">VIP Customers</td>
                     <td>High value customers and frequent purchasers.</td>
-                    <td>250</td>
-                    <td>₱3,500,000</td>
+                    <td>{{ $vipCount }}</td>
+                    <td>₱{{ number_format($vipRevenue, 2) }}</td>
                     <td>
                         <a href="{{ route('crm.customers', ['q' => 'VIP']) }}" title="Edit segment customers" class="text-gray-500 hover:text-green-700">
                             <i class="fas fa-pen"></i>
@@ -385,8 +385,8 @@
                 <tr>
                     <td class="inactive">Inactive Customers</td>
                     <td>Customers with no purchases in 6 months.</td>
-                    <td>230</td>
-                    <td>₱930,000</td>
+                    <td>{{ $inactiveCount }}</td>
+                    <td>₱{{ number_format($inactiveRevenue, 2) }}</td>
                     <td>
                         <a href="{{ route('crm.customers', ['q' => 'Inactive']) }}" title="Edit segment customers" class="text-gray-500 hover:text-green-700">
                             <i class="fas fa-pen"></i>

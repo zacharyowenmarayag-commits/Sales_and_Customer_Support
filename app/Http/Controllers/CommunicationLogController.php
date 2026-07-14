@@ -16,32 +16,26 @@ class CommunicationLogController extends Controller
             'channel' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:255'],
-
             'subject' => ['required', Rule::in(\App\Models\CommunicationLog::SUBJECTS)],
-
             'message' => ['nullable', 'string'],
         ]);
 
-        $log = CrmStorage::createCommunicationLog([
-            ...$validated,
+        $log = \App\Models\CommunicationLog::create([
+            'customer' => $validated['customer'],
+            'channel' => $validated['channel'],
+            'email' => $validated['email'] ?? '',
+            'phone' => $validated['phone'] ?? '',
+            'subject' => $validated['subject'],
+            'message' => $validated['message'] ?? '',
             'handled_by' => 'Admin',
         ]);
 
         if ($validated['subject'] === 'Order Follow-up') {
-            $details = CrmStorage::parseOrderDetailsFromMessage($validated['message'] ?? null);
-
-            CrmStorage::createPurchaseHistory([
-                'customer' => $validated['customer'],
-                'order_id' => $details['order_id'],
-                'amount' => $details['amount'],
-                'purchased_at' => now(),
-            ]);
-
             $task = $validated['message']
                 ? 'Order Follow-up: ' . Str::limit($validated['message'], 100)
                 : 'Order Follow-up';
 
-            CrmStorage::createFollowUp([
+            \App\Models\FollowUp::create([
                 'communication_log_id' => $log->id,
                 'task' => $task,
                 'customer' => $validated['customer'],
@@ -51,7 +45,6 @@ class CommunicationLogController extends Controller
         }
 
         return redirect()
-
             ->route('crm.comlog')
             ->with('success', 'Communication log added successfully.');
     }

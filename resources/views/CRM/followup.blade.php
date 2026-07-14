@@ -148,7 +148,7 @@
         });
     });
 
-    // Name search
+    // Name search — fires as you type (300 ms debounce)
     const searchInput = document.getElementById('followupSearch');
     const currentStatus = @json($status);
 
@@ -164,8 +164,14 @@
             window.location.href = url.toString();
         };
 
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(applySearch, 300);
+        });
+
         searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') applySearch();
+            if (e.key === 'Enter') { clearTimeout(debounceTimer); applySearch(); }
         });
     }
 </script>

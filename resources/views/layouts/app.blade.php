@@ -22,11 +22,47 @@
                 <span class="text-xl font-bold tracking-wider text-white">AMBATUGROW</span>
             </div>
             <div class="relative w-80">
-                <input type="text" placeholder="What are you looking for?" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 pr-10">
+                <input type="text" id="globalHeaderSearch" value="{{ request('q') }}" placeholder="What are you looking for?" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 pr-10">
                 <i class="fas fa-search absolute right-3 top-3 text-white/60 text-sm"></i>
             </div>
         </header>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const globalSearch = document.getElementById('globalHeaderSearch');
+            if (globalSearch) {
+                const triggerSearch = () => {
+                    const query = globalSearch.value.trim();
+                    const path = window.location.pathname.toLowerCase();
+                    const url = new URL(window.location.href);
+
+                    // Sync the global header search input to page-specific inputs if they exist,
+                    // or redirect to correct search endpoints depending on section path.
+                    if (query) {
+                        url.searchParams.set('q', query);
+                    } else {
+                        url.searchParams.delete('q');
+                    }
+                    url.searchParams.set('page', '1');
+                    window.location.href = url.toString();
+                };
+
+                let timer;
+                globalSearch.addEventListener('input', () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(triggerSearch, 400);
+                });
+
+                globalSearch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        clearTimeout(timer);
+                        triggerSearch();
+                    }
+                });
+            }
+        });
+    </script>
 
     <div class="flex flex-1">
         @include('partials.sidebar')

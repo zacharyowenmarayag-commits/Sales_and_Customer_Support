@@ -50,12 +50,11 @@
             <tbody class="divide-y divide-gray-100" id="customersTableBody">
                 @forelse ($customers as $customer)
                     <tr>
-                        <td class="px-6 py-4 font-medium text-gray-900">CUST-{{ str_pad($customer->id, 4, '0', STR_PAD_LEFT) }}</td>
-                        <td class="px-6 py-4 text-gray-600">{{ $customer->name }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ $customer->customer_id }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ $customer->first_name }} {{ $customer->last_name }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ $customer->email ?: '—' }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ $customer->phone ?: '—' }}</td>
                     </tr>
-
                 @empty
                     <tr>
                         <td colspan="4" class="px-6 py-8 text-center text-gray-500">No customers yet. Click "Add Customer" to create one.</td>
@@ -74,19 +73,35 @@
         <form action="{{ route('crm.customers.store') }}" method="POST" id="customerForm">
             @csrf
 
-            <div class="mb-4">
-                <label for="name" class="block text-sm font-semibold text-gray-700 mb-1.5">Name</label>
-                <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    value="{{ old('name') }}"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
-                    required
-                >
-                @error('name')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="first_name" class="block text-sm font-semibold text-gray-700 mb-1.5">First Name</label>
+                    <input
+                        type="text"
+                        name="first_name"
+                        id="first_name"
+                        value="{{ old('first_name') }}"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
+                        required
+                    >
+                    @error('first_name')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="last_name" class="block text-sm font-semibold text-gray-700 mb-1.5">Last Name</label>
+                    <input
+                        type="text"
+                        name="last_name"
+                        id="last_name"
+                        value="{{ old('last_name') }}"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
+                        required
+                    >
+                    @error('last_name')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -168,7 +183,7 @@
         }
     });
 
-    // Name searcher
+    // Name searcher — fires as you type (300 ms debounce)
     const searchInput = document.getElementById('customerSearch');
     if (searchInput) {
         const applySearch = () => {
@@ -180,8 +195,14 @@
             window.location.href = url.toString();
         };
 
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(applySearch, 300);
+        });
+
         searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') applySearch();
+            if (e.key === 'Enter') { clearTimeout(debounceTimer); applySearch(); }
         });
     }
 

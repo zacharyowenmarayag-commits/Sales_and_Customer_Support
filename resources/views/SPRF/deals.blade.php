@@ -248,30 +248,54 @@
         <!-- Premium Pagination Footer -->
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-5 border-t border-[#eedcbe]">
             <div class="text-xs text-gray-500 font-bold">
-                Showing 1 to {{ $pastDeals->count() }} of {{ $pastDeals->count() }} entries
+                Showing {{ $pastDeals->firstItem() ?? 0 }} to {{ $pastDeals->lastItem() ?? 0 }} of {{ $pastDeals->total() }} entries
             </div>
-            <div class="flex items-center gap-1.5">
-                <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-gray-400 select-none cursor-not-allowed" disabled>
-                    Previous
-                </button>
-                <button class="px-3.5 py-2 rounded-lg bg-green-800 text-[10px] text-white font-bold select-none cursor-default">
-                    1
-                </button>
-                @if ($pastDeals->count() > 4)
-                    <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-[#a67c00] hover:bg-gray-50 transition duration-150 cursor-pointer shadow-sm">
-                        2
-                    </button>
-                    <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-[#a67c00] hover:bg-gray-50 transition duration-150 cursor-pointer shadow-sm">
-                        3
-                    </button>
-                    <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-[#a67c00] hover:bg-gray-50 transition duration-150 cursor-pointer shadow-sm">
-                        Next
-                    </button>
-                @else
-                    <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-gray-400 select-none cursor-not-allowed" disabled>
-                        Next
-                    </button>
+            <div class="flex items-center gap-3">
+                @if ($pastDeals->lastPage() > 1)
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-gray-500 font-bold">Go to:</span>
+                        <select onchange="window.location.href = this.value" class="bg-white border border-[#eedcbe] rounded-lg px-2 py-1.5 text-[10px] font-bold text-gray-600 focus:outline-none focus:ring-1 focus:ring-green-700 shadow-sm cursor-pointer">
+                            @for ($i = 1; $i <= $pastDeals->lastPage(); $i++)
+                                <option value="{{ $pastDeals->appends(request()->query())->url($i) }}" {{ $i == $pastDeals->currentPage() ? 'selected' : '' }}>
+                                    Page {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
                 @endif
+                <div class="flex items-center gap-1.5">
+                    @if ($pastDeals->onFirstPage())
+                        <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-gray-400 select-none cursor-not-allowed" disabled>
+                            Previous
+                        </button>
+                    @else
+                        <a href="{{ $pastDeals->appends(request()->query())->previousPageUrl() }}" class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-[#a67c00] hover:bg-gray-50 transition duration-150 cursor-pointer shadow-sm">
+                            Previous
+                        </a>
+                    @endif
+
+                    @foreach ($pastDeals->getUrlRange(1, $pastDeals->lastPage()) as $page => $url)
+                        @if ($page == $pastDeals->currentPage())
+                            <button class="px-3.5 py-2 rounded-lg bg-green-800 text-[10px] text-white font-bold select-none cursor-default">
+                                {{ $page }}
+                            </button>
+                        @else
+                            <a href="{{ $pastDeals->appends(request()->query())->url($page) }}" class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-[#a67c00] hover:bg-gray-50 transition duration-150 cursor-pointer shadow-sm">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+
+                    @if ($pastDeals->hasMorePages())
+                        <a href="{{ $pastDeals->appends(request()->query())->nextPageUrl() }}" class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-[#a67c00] hover:bg-gray-50 transition duration-150 cursor-pointer shadow-sm">
+                            Next
+                        </a>
+                    @else
+                        <button class="px-3 py-2 rounded-lg border border-[#eedcbe] bg-white text-[10px] font-bold text-gray-400 select-none cursor-not-allowed" disabled>
+                            Next
+                        </button>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

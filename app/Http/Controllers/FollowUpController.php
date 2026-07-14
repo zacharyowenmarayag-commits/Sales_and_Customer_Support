@@ -15,15 +15,15 @@ class FollowUpController extends Controller
             'status' => ['required', Rule::in(FollowUp::STATUSES)],
         ]);
 
+        $followUp = \App\Models\FollowUp::find($followUpId);
 
-        CrmStorage::ensureSeeded();
-        $updated = CrmStorage::updateFollowUpStatus($followUpId, $validated['status']);
-
-        if ($updated === null) {
+        if (!$followUp) {
             return redirect()
                 ->route('crm.followup')
                 ->with('success', 'Follow-up not found.');
         }
+
+        $followUp->update(['status' => $validated['status']]);
 
         return redirect()
             ->back()

@@ -75,6 +75,12 @@
                 <span class="sidebar-text">Segmentation</span>
             </a>
         </div>
+
+        <!-- Database Schema (ERD) -->
+        <a href="{{ route('db-schema') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('db-schema') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium">
+            <i class="fas fa-database w-5 flex-shrink-0 sidebar-icon mr-3"></i>
+            <span class="sidebar-text">Database Schema</span>
+        </a>
     </div>
 </aside>
 
