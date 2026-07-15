@@ -135,7 +135,7 @@
         let debounceTimer;
         somSearch.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 300);
+            debounceTimer = setTimeout(applySearch, 800);
         });
 
         somSearch.addEventListener('keydown', (e) => {

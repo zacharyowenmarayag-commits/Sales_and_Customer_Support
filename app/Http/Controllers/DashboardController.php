@@ -102,9 +102,9 @@ class DashboardController extends Controller
     }
 
     public function sprf(Request $request)
-
     {
         $dateRange = $request->query('date_range', 'May 1 - May 31, 2026');
+        $q = $request->query('q');
 
         $kpis = \App\Models\KpiStat::where('date_range', $dateRange)->first();
         if (!$kpis) {
@@ -128,6 +128,7 @@ class DashboardController extends Controller
             'productSales' => $productSales,
             'salesPerformance' => $salesPerformance,
             'recentDeals' => $recentDeals,
+            'q' => $q,
         ]);
     }
 
@@ -282,11 +283,11 @@ class DashboardController extends Controller
 
     public function crmDashboard()
     {
-        $customersCount = \App\Models\Customer::count();
-        $logsCount = \App\Models\CommunicationLog::count();
+        $customersCount = count(CrmStorage::listCustomers());
+        $logsCount = CrmStorage::communicationLogsCount();
 
-        $pendingFollowUps = \App\Models\FollowUp::where('status', 'Pending')->count();
-        $completedFollowUps = \App\Models\FollowUp::where('status', 'Completed')->count();
+        $pendingFollowUps = CrmStorage::followUpsCountByStatus('Pending');
+        $completedFollowUps = CrmStorage::followUpsCountByStatus('Completed');
 
         return view('CRM.dashboard', [
             'customersCount' => $customersCount,
@@ -300,15 +301,8 @@ class DashboardController extends Controller
     {
         $q = $request->query('q');
 
-        $query = \App\Models\Customer::query();
-        if ($q) {
-            $query->where(function ($query) use ($q) {
-                $query->where('first_name', 'like', "%{$q}%")
-                      ->orWhere('last_name', 'like', "%{$q}%");
-            });
-        }
-
-        $customers = $query->paginate(10);
+        $customersList = CrmStorage::listCustomers($q);
+        $customers = ArrayPaginator::make($customersList, $request);
 
         return view('CRM.customer', [
             'customers' => $customers,
@@ -320,33 +314,8 @@ class DashboardController extends Controller
     {
         $q = $request->query('q');
 
-        $query = \App\Models\SalesOrder::with('customer')
-            ->whereNotNull('customer_id')
-            ->orderBy('order_date', 'desc');
-
-        if ($q) {
-            $query->whereHas('customer', function ($sub) use ($q) {
-                $sub->where('first_name', 'like', "%{$q}%")
-                    ->orWhere('last_name', 'like', "%{$q}%");
-            });
-        }
-
-        $paginator = $query->paginate(10);
-
-        $rows = $paginator->getCollection()->map(function ($order) {
-            $customerName = $order->customer
-                ? $order->customer->first_name . ' ' . $order->customer->last_name
-                : 'Unknown';
-            return [
-                'date'     => $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('M j, Y') : '—',
-                'customer' => $customerName,
-                'order_id' => $order->order_id,
-                'amount'   => '₱' . number_format($order->total_amount, 2),
-            ];
-        });
-
-        // Replace collection on paginator
-        $rows = $paginator->setCollection($rows);
+        $rowsList = CrmStorage::purchaseHistoryRows($q);
+        $rows = ArrayPaginator::make($rowsList, $request);
 
         return view('CRM.purchase-history', [
             'rows' => $rows,
@@ -358,15 +327,12 @@ class DashboardController extends Controller
     {
         $q = $request->query('q');
 
-        $query = \App\Models\CommunicationLog::query();
-        if ($q) {
-            $query->where('customer', 'like', "%{$q}%");
-        }
+        $logsList = CrmStorage::listCommunicationLogs($q);
+        $logs = ArrayPaginator::make($logsList, $request);
 
-        $logs = $query->paginate(10);
-        $customers = \App\Models\Customer::all()->map(function ($c) {
+        $customers = array_map(function ($c) {
             return $c->first_name . ' ' . $c->last_name;
-        })->toArray();
+        }, CrmStorage::listCustomers());
 
         return view('CRM.comlog', [
             'logs' => $logs,
@@ -385,15 +351,8 @@ class DashboardController extends Controller
             $status = null;
         }
 
-        $query = \App\Models\FollowUp::query();
-        if ($q) {
-            $query->where('customer', 'like', "%{$q}%");
-        }
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        $followUps = $query->paginate(10);
+        $followUpsList = CrmStorage::listFollowUps($q, $status);
+        $followUps = ArrayPaginator::make($followUpsList, $request);
 
         return view('CRM.followup', [
             'followUps' => $followUps,
@@ -454,6 +413,7 @@ class DashboardController extends Controller
     public function sprfDeals(Request $request)
     {
         $dateRange = $request->query('date_range', 'May 1 - May 31, 2026');
+        $q = $request->query('q');
 
         $hasData = \App\Models\Deal::where('date_range', $dateRange)->exists();
         if (!$hasData) {
@@ -467,6 +427,7 @@ class DashboardController extends Controller
             'dateRange' => $dateRange,
             'ongoingDeals' => $ongoingDeals,
             'pastDeals' => $pastDeals,
+            'q' => $q,
         ]);
     }
 }

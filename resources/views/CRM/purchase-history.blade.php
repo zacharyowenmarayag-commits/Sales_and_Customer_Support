@@ -77,11 +77,11 @@
             window.location.href = url.toString();
         };
 
-        // Fires as you type (300 ms debounce)
+        // Fires as you type (800 ms debounce)
         let debounceTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 300);
+            debounceTimer = setTimeout(applySearch, 800);
         });
 
         searchInput.addEventListener('keydown', (e) => {

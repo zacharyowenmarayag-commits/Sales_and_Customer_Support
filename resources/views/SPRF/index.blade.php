@@ -515,6 +515,16 @@
         'Qualification' => 'badge-qualification',
         'On-Hold' => 'badge-onhold',
     ];
+
+    if (!function_exists('highlightMatch')) {
+        function highlightMatch($text, $query) {
+            if (!$query || trim($query) === '') {
+                return e($text);
+            }
+            $escapedQuery = preg_quote($query, '/');
+            return preg_replace('/(' . $escapedQuery . ')/i', '<span class="text-blue-600">$1</span>', e($text));
+        }
+    }
 @endphp
 
 <div class="sprf-page">
@@ -590,7 +600,7 @@
                         <div class="sprf-product-item border-b border-[#f5f2e9] last:border-0 py-1">
                             <div class="sprf-product-meta">
                                 <span class="sprf-product-dot" style="background:{{ $sale->color }}"></span>
-                                {{ $sale->product_name }}
+                                {!! highlightMatch($sale->product_name, $q) !!}
                             </div>
                             <div class="font-bold text-gray-900">{{ $sale->percentage }}%</div>
                         </div>
@@ -615,7 +625,7 @@
                 <tbody>
                     @foreach ($regionSales as $region)
                         <tr>
-                            <td class="pl-0 font-semibold">{{ $region->region_name }}</td>
+                            <td class="pl-0 font-semibold">{!! highlightMatch($region->region_name, $q) !!}</td>
                             <td>{{ $region->sales_amount }}</td>
                             <td class="sprf-sub text-right pr-0">▲ {{ $region->vs_last_month }}</td>
                         </tr>
@@ -637,13 +647,15 @@
                 <tbody>
                     @php
                         // calculate progress percentage from vs_target text
-                        function getProgressWidth($targetText) {
-                            return min(100, floatval(str_replace('%', '', $targetText)));
+                        if (!function_exists('getProgressWidth')) {
+                            function getProgressWidth($targetText) {
+                                return min(100, floatval(str_replace('%', '', $targetText)));
+                            }
                         }
                     @endphp
                     @foreach ($repSales as $rep)
                         <tr>
-                            <td class="pl-0 font-semibold">{{ $rep->rep_name }}</td>
+                            <td class="pl-0 font-semibold">{!! highlightMatch($rep->rep_name, $q) !!}</td>
                             <td>
                                 {{ $rep->sales_amount }}
                                 <div class="sprf-progress-wrap">
@@ -685,31 +697,26 @@
                     <th>Stage</th>
                     <th>Value</th>
                     <th>Expected Close</th>
-                    <th>Owner</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($recentDeals as $deal)
-                    <tr class="hover:bg-gray-50/50 transition duration-150">
-                        <td class="pl-0 font-semibold text-gray-950">{{ $deal->name }}</td>
-                        <td>{{ $deal->customer }}</td>
+                @forelse ($recentDeals as $deal)
+                    <tr class="deal-row">
+                        <td class="pl-0 font-semibold text-gray-900">{!! highlightMatch($deal->name, $q ?? '') !!}</td>
+                        <td>{!! highlightMatch($deal->customer, $q ?? '') !!}</td>
                         <td>
-                            <span class="sprf-badge {{ $stageClasses[$deal->stage] ?? 'badge-proposal' }}">
-                                {{ $deal->stage }}
-                            </span>
+                            <span class="sprf-badge {{ $stageClasses[$deal->stage] ?? '' }}">{{ $deal->stage }}</span>
                         </td>
-                        <td class="font-bold text-gray-950">{{ $deal->value }}</td>
+                        <td>{{ $deal->value }}</td>
                         <td>{{ $deal->expected_close }}</td>
-                        <td>{{ $deal->owner }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-gray-400 py-6">No recent deals found for this date range.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
-        <div style="display:flex; justify-content:flex-end; margin-top:16px;">
-            <a href="{{ route('sprf.deals', ['date_range' => $dateRange]) }}" class="sprf-view-all">
-                View All Deals <i class="fas fa-arrow-right" style="font-size:10px;"></i>
-            </a>
-        </div>
     </div>
 </div>
 

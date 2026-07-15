@@ -127,6 +127,12 @@ class CrmStorage
             $obj = (object) $customer;
             $obj->created_at = isset($customer['created_at']) ? Carbon::parse($customer['created_at']) : null;
 
+            // Compatibility fields for Blade views
+            $obj->customer_id = 'CUST-' . str_pad($obj->id, 3, '0', STR_PAD_LEFT);
+            $parts = explode(' ', $obj->name ?? '', 2);
+            $obj->first_name = $parts[0] ?? '';
+            $obj->last_name = $parts[1] ?? '';
+
             return $obj;
         }, $filtered);
     }
@@ -151,6 +157,12 @@ class CrmStorage
 
         $obj = (object) $record;
         $obj->created_at = $now;
+
+        // Compatibility fields for Blade views
+        $obj->customer_id = 'CUST-' . str_pad($obj->id, 3, '0', STR_PAD_LEFT);
+        $parts = explode(' ', $obj->name ?? '', 2);
+        $obj->first_name = $parts[0] ?? '';
+        $obj->last_name = $parts[1] ?? '';
 
         return $obj;
     }

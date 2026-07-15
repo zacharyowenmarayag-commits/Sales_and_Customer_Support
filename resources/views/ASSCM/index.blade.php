@@ -260,7 +260,7 @@
         let debounceTimer;
         caseSearch.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 300);
+            debounceTimer = setTimeout(applySearch, 800);
         });
 
         caseSearch.addEventListener('keydown', (e) => {

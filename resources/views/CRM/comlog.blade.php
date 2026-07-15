@@ -181,7 +181,7 @@
         let debounceTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 300);
+            debounceTimer = setTimeout(applySearch, 800);
         });
 
         searchInput.addEventListener('keydown', (e) => {

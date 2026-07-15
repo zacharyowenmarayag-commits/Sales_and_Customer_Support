@@ -30,6 +30,52 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Restore scroll position and input focus if the path matches the last saved path
+            const savedPath = localStorage.getItem('scrollPathname');
+            const savedScroll = localStorage.getItem('scrollPosition');
+            if (savedPath === window.location.pathname) {
+                if (savedScroll) {
+                    window.scrollTo(0, parseInt(savedScroll, 10));
+                }
+                const activeElementId = localStorage.getItem('activeElementId');
+                const cursorPosition = localStorage.getItem('cursorPosition');
+                if (activeElementId) {
+                    const el = document.getElementById(activeElementId);
+                    if (el) {
+                        el.focus();
+                        if (cursorPosition !== null && el.setSelectionRange) {
+                            const pos = parseInt(cursorPosition, 10);
+                            el.setSelectionRange(pos, pos);
+                        }
+                    }
+                    localStorage.removeItem('activeElementId');
+                    localStorage.removeItem('cursorPosition');
+                }
+            }
+
+            // Save scroll position and focused element before unloading the page
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('scrollPosition', window.scrollY);
+                localStorage.setItem('scrollPathname', window.location.pathname);
+                if (document.activeElement && document.activeElement.id) {
+                    localStorage.setItem('activeElementId', document.activeElement.id);
+                    localStorage.setItem('cursorPosition', document.activeElement.selectionStart || 0);
+                } else {
+                    localStorage.removeItem('activeElementId');
+                    localStorage.removeItem('cursorPosition');
+                }
+            });
+
+            // Also save scroll position on scroll (debounced) to ensure correctness
+            let scrollTimeout;
+            window.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    localStorage.setItem('scrollPosition', window.scrollY);
+                    localStorage.setItem('scrollPathname', window.location.pathname);
+                }, 100);
+            });
+
             const globalSearch = document.getElementById('globalHeaderSearch');
             if (globalSearch) {
                 const triggerSearch = () => {
@@ -48,18 +94,37 @@
                     window.location.href = url.toString();
                 };
 
-                let timer;
-                globalSearch.addEventListener('input', () => {
-                    clearTimeout(timer);
-                    timer = setTimeout(triggerSearch, 400);
-                });
-
                 globalSearch.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
-                        clearTimeout(timer);
                         triggerSearch();
                     }
                 });
+            }
+
+            // Scroll to the first matching element on page load
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q');
+            if (searchQuery) {
+                setTimeout(() => {
+                    // 1. First priority: highlighted data match
+                    const dataMatch = document.querySelector('.text-blue-600');
+                    if (dataMatch) {
+                        dataMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
+                    // 2. Second priority: search headings, labels, and section titles
+                    const q = searchQuery.toLowerCase();
+                    const candidates = document.querySelectorAll('h1, h2, h3, th, .label, .sprf-kpi-card .label, .sprf-panel h3');
+                    for (const el of candidates) {
+                        if (el.textContent.toLowerCase().includes(q)) {
+                            // Scroll to the closest panel/section container, or the element itself
+                            const section = el.closest('.sprf-panel, .sprf-kpi-card, .sprf-charts-row, .sprf-three-row, section, [class*="card"], [class*="panel"]') || el;
+                            section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return;
+                        }
+                    }
+                }, 300);
             }
         });
     </script>

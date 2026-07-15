@@ -68,6 +68,17 @@
 @endpush
 
 @section('content')
+@php
+    if (!function_exists('highlightMatch')) {
+        function highlightMatch($text, $query) {
+            if (!$query || trim($query) === '') {
+                return e($text);
+            }
+            $escapedQuery = preg_quote($query, '/');
+            return preg_replace('/(' . $escapedQuery . ')/i', '<span class="text-blue-600">$1</span>', e($text));
+        }
+    }
+@endphp
 <div class="space-y-6">
     <!-- Header & Toolbar Row -->
     <div class="flex justify-between items-center">
@@ -152,9 +163,12 @@
                 @endphp
                 <tbody class="divide-y divide-[#f5f2e9]" id="ongoingDealsTable">
                     @forelse ($ongoingDeals as $deal)
+                        @if (!empty($q) && !(stripos($deal->deal_name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
+                            @continue
+                        @endif
                         <tr class="hover:bg-[#fffcf4]/50 transition duration-150">
-                            <td class="py-4 px-2 font-medium text-gray-950">{{ $deal->name }}</td>
-                            <td class="py-4 px-2 text-gray-800">{{ $deal->customer }}</td>
+                            <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->deal_name, $q) !!}</td>
+                            <td class="py-4 px-2 text-gray-800">{!! highlightMatch($deal->customer, $q) !!}</td>
                             <td class="py-4 px-2">
                                 <span class="inline-block px-3 py-1 rounded-[6px] {{ $stageClasses[$deal->stage] ?? 'bg-gray-100 text-gray-800' }} text-[10px] font-bold">
                                     {{ $deal->stage }}
@@ -162,7 +176,7 @@
                             </td>
                             <td class="py-4 px-2 font-bold text-gray-950">{{ $deal->value }}</td>
                             <td class="py-4 px-2">{{ $deal->expected_close }}</td>
-                            <td class="py-4 px-2 font-semibold text-gray-900">{{ $deal->owner }}</td>
+                            <td class="py-4 px-2 font-semibold text-gray-900">{!! highlightMatch($deal->owner, $q) !!}</td>
                         </tr>
                     @empty
                         <tr>
@@ -224,9 +238,12 @@
                 @endphp
                 <tbody class="divide-y divide-[#f5f2e9]" id="pastDealsTable">
                     @forelse ($pastDeals as $deal)
+                        @if (!empty($q) && !(stripos($deal->deal_name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
+                            @continue
+                        @endif
                         <tr class="hover:bg-[#fffcf4]/50 transition duration-150">
-                            <td class="py-4 px-2 font-medium text-gray-950">{{ $deal->name }}</td>
-                            <td class="py-4 px-2 text-gray-800">{{ $deal->customer }}</td>
+                            <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->deal_name, $q) !!}</td>
+                            <td class="py-4 px-2 text-gray-800">{!! highlightMatch($deal->customer, $q) !!}</td>
                             <td class="py-4 px-2">
                                 <span class="inline-block px-3 py-1 rounded-[6px] {{ $pastStageClasses[$deal->stage] ?? 'bg-gray-100 text-gray-800' }} text-[10px] font-bold">
                                     {{ $deal->stage }}
@@ -234,7 +251,7 @@
                             </td>
                             <td class="py-4 px-2 font-bold text-gray-950">{{ $deal->value }}</td>
                             <td class="py-4 px-2">{{ $deal->expected_close }}</td>
-                            <td class="py-4 px-2 font-semibold text-gray-900">{{ $deal->owner }}</td>
+                            <td class="py-4 px-2 font-semibold text-gray-900">{!! highlightMatch($deal->owner, $q) !!}</td>
                         </tr>
                     @empty
                         <tr>

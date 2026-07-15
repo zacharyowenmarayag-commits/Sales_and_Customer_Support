@@ -20,7 +20,7 @@ class CommunicationLogController extends Controller
             'message' => ['nullable', 'string'],
         ]);
 
-        $log = \App\Models\CommunicationLog::create([
+        $log = CrmStorage::createCommunicationLog([
             'customer' => $validated['customer'],
             'channel' => $validated['channel'],
             'email' => $validated['email'] ?? '',
@@ -35,7 +35,7 @@ class CommunicationLogController extends Controller
                 ? 'Order Follow-up: ' . Str::limit($validated['message'], 100)
                 : 'Order Follow-up';
 
-            \App\Models\FollowUp::create([
+            CrmStorage::createFollowUp([
                 'communication_log_id' => $log->id,
                 'task' => $task,
                 'customer' => $validated['customer'],

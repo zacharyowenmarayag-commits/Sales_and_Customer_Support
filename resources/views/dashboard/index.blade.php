@@ -310,15 +310,15 @@
             <div class="module-stats">
                 @if($sprfKpis)
                 <div class="module-stat">
-                    <span class="module-stat-value" style="color:#3aa0c9;">{{ $sprfKpis->total_revenue ?? '₱0' }}</span>
+                    <span class="module-stat-value" style="color:#3aa0c9;">{{ $sprfKpis->total_sales ?? '₱0' }}</span>
                     <span class="module-stat-label">Total Revenue</span>
                 </div>
                 <div class="module-stat">
-                    <span class="module-stat-value">{{ $sprfKpis->achievement_rate ?? '0%' }}</span>
+                    <span class="module-stat-value">{{ $sprfKpis->win_rate ?? '0%' }}</span>
                     <span class="module-stat-label">Achievement</span>
                 </div>
                 <div class="module-stat">
-                    <span class="module-stat-value">{{ $sprfKpis->deals_closed ?? '0' }}</span>
+                    <span class="module-stat-value">{{ $sprfKpis->total_orders ?? '0' }}</span>
                     <span class="module-stat-label">Deals Closed</span>
                 </div>
                 @else
