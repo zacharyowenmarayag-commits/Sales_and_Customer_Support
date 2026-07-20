@@ -199,20 +199,6 @@
                             <span class="flex items-center gap-1">Expected Close <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
                     </tr>
-<<<<<<< HEAD
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-gray-400 py-6">No recent deals found for this date range.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-        <div class="flex justify-end mt-3">
-            <a href="{{ route('sprf.deals', ['date_range' => $dateRange]) }}" class="sprf-view-all">
-                View all deals <i class="fas fa-arrow-right text-[10px]"></i>
-            </a>
-        </div>
-=======
                 </thead>
                 <tbody>
                     @forelse ($recentDeals as $deal)
@@ -249,7 +235,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#eedcbe]">
             <span class="text-sm font-extrabold text-gray-900"><i class="fas fa-sliders-h text-xs text-green-700 mr-1.5"></i>Dashboard Filters</span>
-            <button onclick="closeSprfDashFilter()" class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition text-xs cursor-pointer">✕</button>
+            <button onclick="closeSprfDashFilter()" class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition text-xs cursor-pointer">?</button>
         </div>
 
         <!-- Tabs -->
@@ -262,85 +248,7 @@
                     class="flex-1 py-2.5 text-[11px] font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition cursor-pointer">
                 <i class="fas fa-sliders-h text-[10px] mr-1"></i>Data Filters
             </button>
-        </div>
-
-        <!-- SECTIONS TAB -->
-        <div id="sprf-filter-tab-sections" class="px-5 py-4 space-y-0.5">
-            <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-3">Show / Hide Dashboard Panels</p>
-            @foreach ($sectionDefs as $sec)
-                <label class="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-[#f9f7f2] cursor-pointer group select-none transition-colors">
-                    <span class="flex items-center gap-2.5 text-xs font-semibold text-gray-700 group-hover:text-gray-900">
-                        <i class="fas {{ $sec['icon'] }} text-[10px] text-green-700 w-3.5 text-center shrink-0"></i>
-                        {{ $sec['label'] }}
-                    </span>
-                    <div class="relative shrink-0 ml-3">
-                        <input type="checkbox" checked class="sprf-section-toggle sr-only peer" data-section="{{ $sec['id'] }}">
-                        <div class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-green-700 transition-colors"></div>
-                        <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
-                    </div>
-                </label>
-            @endforeach
-        </div>
-
-        <!-- DATA FILTERS TAB -->
-        <div id="sprf-filter-tab-data" class="hidden px-5 py-4 space-y-4">
-            <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-1">Filter Table Rows &amp; Highlights</p>
-
-            <!-- Sales Rep -->
-            <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Sales Representative</label>
-                <div class="relative">
-                    <select id="sprf-data-rep" class="w-full appearance-none border border-[#e3ddc9] rounded-lg px-3 py-2.5 text-xs text-gray-800 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-green-700/40 focus:border-green-700 transition cursor-pointer">
-                        <option value="">All Representatives</option>
-                        @foreach ($repSales as $rep)
-                            <option value="{{ strtolower($rep->rep_name) }}">{{ $rep->rep_name }}</option>
-                        @endforeach
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400"><i class="fas fa-chevron-down text-[9px]"></i></div>
-                </div>
-            </div>
-
-            <!-- Region -->
-            <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Region</label>
-                <div class="relative">
-                    <select id="sprf-data-region" class="w-full appearance-none border border-[#e3ddc9] rounded-lg px-3 py-2.5 text-xs text-gray-800 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-green-700/40 focus:border-green-700 transition cursor-pointer">
-                        <option value="">All Regions</option>
-                        @foreach ($regionSales as $region)
-                            <option value="{{ strtolower($region->region_name) }}">{{ $region->region_name }}</option>
-                        @endforeach
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400"><i class="fas fa-chevron-down text-[9px]"></i></div>
-                </div>
-            </div>
-
-            <!-- Product -->
-            <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Product</label>
-                <div class="relative">
-                    <select id="sprf-data-product" class="w-full appearance-none border border-[#e3ddc9] rounded-lg px-3 py-2.5 text-xs text-gray-800 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-green-700/40 focus:border-green-700 transition cursor-pointer">
-                        <option value="">All Products</option>
-                        @foreach ($productSales as $sale)
-                            <option value="{{ strtolower($sale->product_name) }}">{{ $sale->product_name }}</option>
-                        @endforeach
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400"><i class="fas fa-chevron-down text-[9px]"></i></div>
-                </div>
-            </div>
-
-            <div class="p-3 bg-[#f0fdf4] border border-green-200 rounded-xl text-[10px] text-green-800 leading-relaxed">
-                <i class="fas fa-info-circle mr-1"></i>
-                Filters update table rows instantly. Rep and Region filters hide non-matching rows; Product filter dims the legend.
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="flex items-center justify-between px-5 py-4 border-t border-[#eedcbe] bg-[#fffdf8]">
-            <button onclick="resetSprfDashFilters()" class="px-4 py-2 rounded-lg border border-[#e3ddc9] text-[11px] font-bold text-gray-600 hover:bg-gray-50 transition cursor-pointer">Reset All</button>
-            <button onclick="closeSprfDashFilter()" class="px-5 py-2 rounded-lg bg-green-800 text-[11px] font-bold text-white hover:bg-green-900 transition cursor-pointer">Done</button>
-        </div>
->>>>>>> 364da8f (feat: enhance CRM segmentation, dashboard, and SPRF features; refactor SPRF architecture)
-    </div>
+        </div>    </div>
 </div>
 
 <!-- Calendar Popup Modal -->
@@ -418,5 +326,6 @@
 </script>
 <script src="{{ asset('js/sprf-dashboard.js') }}?v={{ filemtime(public_path('js/sprf-dashboard.js')) }}"></script>
 @endpush
+
 
 
