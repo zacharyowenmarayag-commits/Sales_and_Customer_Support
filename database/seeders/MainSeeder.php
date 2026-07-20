@@ -69,19 +69,24 @@ class MainSeeder extends Seeder
         // 2. CUSTOMER SEGMENTS
         // ──────────────────────────────────────────
         CustomerSegment::create([
-            'segment_id'   => 'SEG-001',
-            'segment_name' => 'VIP Customer',
-            'description'  => 'High value customers with frequent purchases.',
+            'segment_id'   => 'SEG-NEW',
+            'segment_name' => 'New Customers',
+            'description'  => 'Customers who registered within the last 30 days.',
         ]);
         CustomerSegment::create([
-            'segment_id'   => 'SEG-002',
-            'segment_name' => 'Active Customer',
-            'description'  => 'Customers with recent follow-ups or purchases.',
+            'segment_id'   => 'SEG-REG',
+            'segment_name' => 'Regular Customers',
+            'description'  => 'Customers with regular purchases.',
         ]);
         CustomerSegment::create([
-            'segment_id'   => 'SEG-003',
-            'segment_name' => 'Prospect',
-            'description'  => 'Potential customers without purchases yet.',
+            'segment_id'   => 'SEG-VIP',
+            'segment_name' => 'VIP Customers',
+            'description'  => 'High value customers and frequent purchasers.',
+        ]);
+        CustomerSegment::create([
+            'segment_id'   => 'SEG-INA',
+            'segment_name' => 'Inactive Customers',
+            'description'  => 'Customers with no purchases in 6 months.',
         ]);
 
         // ──────────────────────────────────────────

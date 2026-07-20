@@ -257,7 +257,7 @@
         <div class="dash-hero-sub">Here's a live overview of all your business modules and key metrics.</div>
         <div class="dash-hero-meta">
             <span class="dash-hero-pill"><i class="fas fa-circle-dot mr-1" style="font-size:8px;"></i> Live</span>
-            <span class="dash-hero-pill">{{ now()->format('F j, Y') }}</span>
+            <span class="dash-hero-pill">{{ $currentDate }}</span>
         </div>
     </div>
 
@@ -410,20 +410,11 @@
                 </thead>
                 <tbody>
                     @forelse($recentDeals as $deal)
-                    @php
-                        $stageColors = [
-                            'Proposal'      => 'background:#dbe6ff; color:#3355bb;',
-                            'Negotiation'   => 'background:#fff9c4; color:#a67c00;',
-                            'Qualification' => 'background:#fde2f0; color:#b0447a;',
-                            'On-Hold'       => 'background:#fee2e2; color:#dc2626;',
-                        ];
-                        $stageStyle = $stageColors[$deal->stage] ?? 'background:#f3f4f6; color:#374151;';
-                    @endphp
                     <tr>
                         <td class="font-semibold text-gray-900">{{ $deal->name }}</td>
                         <td>{{ $deal->customer }}</td>
                         <td>
-                            <span class="stage-badge" style="{{ $stageStyle }}">{{ $deal->stage }}</span>
+                            <span class="stage-badge" style="{{ $deal->stage_style }}">{{ $deal->stage }}</span>
                         </td>
                         <td class="font-bold text-gray-900">{{ $deal->value }}</td>
                         <td class="text-gray-500">{{ $deal->expected_close }}</td>

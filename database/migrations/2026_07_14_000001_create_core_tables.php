@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('segment_id')->primary();
             $table->string('segment_name');
             $table->text('description')->nullable();
+            $table->integer('estimated_count')->default(0);
+            $table->decimal('projected_sales', 15, 2)->default(0);
             $table->timestamps();
         });
 

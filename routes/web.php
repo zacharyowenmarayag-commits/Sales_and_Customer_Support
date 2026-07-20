@@ -36,6 +36,8 @@ Route::prefix('crm')->name('crm.')->group(function () {
 
 
     Route::get('/segmentation', [DashboardController::class, 'crmSegmentation'])->name('segmentation');
+    Route::post('/segmentation', [DashboardController::class, 'crmSegmentationStore'])->name('segmentation.store');
+    Route::post('/segmentation/update', [DashboardController::class, 'crmSegmentationUpdate'])->name('segmentation.update');
 });
 
 

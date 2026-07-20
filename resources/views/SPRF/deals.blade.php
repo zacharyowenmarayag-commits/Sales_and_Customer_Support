@@ -64,6 +64,45 @@
 }
 .cal-year-btn:hover { background: #f0fdf4; border-color: #166534; color: #166534; }
 .cal-year-btn.is-selected { background: #166534; border-color: #166534; color: #fff; }
+
+table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    margin-top: 4px !important;
+}
+table thead tr {
+    background-color: #fbf9f1 !important;
+}
+table th {
+    padding: 10px 12px !important;
+    border-bottom: none !important;
+}
+table thead tr th:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    padding-left: 12px !important;
+}
+table thead tr th:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    padding-right: 12px !important;
+}
+table td {
+    padding: 10px 12px !important;
+}
+#ongoingDealsTable tr td,
+#pastDealsTable tr td {
+    border-bottom: 1px solid #f5f2e9;
+}
+#ongoingDealsTable tr:last-child td,
+#pastDealsTable tr:last-child td {
+    border-bottom: none;
+}
+/* Orange line between header and first data row */
+[data-table-id="ongoingDealsTable"] th,
+[data-table-id="pastDealsTable"] th {
+    border-bottom: 1px solid #eedcbe !important;
+}
 </style>
 @endpush
 
@@ -94,8 +133,9 @@
             <!-- Date select dropdown (Functional) -->
             <div class="relative">
                 <select class="appearance-none bg-white border border-[#e3ddc9] rounded-lg pl-4 pr-10 py-2.5 text-xs text-gray-700 font-bold hover:bg-gray-50 transition duration-150 cursor-pointer focus:outline-none focus:ring-1 focus:ring-green-700 shadow-sm" onchange="window.location.href = '?date_range=' + encodeURIComponent(this.value)">
-                    <option value="May 1 - May 31, 2026" {{ $dateRange == 'May 1 - May 31, 2026' ? 'selected' : '' }}>May 1 - May 31, 2026</option>
-                    <option value="Apr 1 - Apr 30, 2026" {{ $dateRange == 'Apr 1 - Apr 30, 2026' ? 'selected' : '' }}>Apr 1 - Apr 30, 2026</option>
+                    @foreach ($availableDateRanges as $range)
+                        <option value="{{ $range }}" {{ $dateRange === $range ? 'selected' : '' }}>{{ $range }}</option>
+                    @endforeach
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                     <i class="fas fa-chevron-down text-[10px]"></i>
@@ -103,9 +143,12 @@
             </div>
             
             <!-- Filter button -->
-            <button class="w-10 h-10 flex items-center justify-center bg-white border border-[#e3ddc9] rounded-lg text-[#8a8a7a] hover:bg-gray-50 hover:text-gray-600 transition duration-150 cursor-pointer shadow-sm">
-                <i class="fas fa-filter text-sm"></i>
-            </button>
+            <div class="relative">
+                <button id="sprf-filter-trigger" onclick="toggleSprfFilter()" class="w-10 h-10 flex items-center justify-center bg-white border border-[#e3ddc9] rounded-lg text-[#8a8a7a] hover:bg-gray-50 hover:text-gray-600 transition duration-150 cursor-pointer shadow-sm">
+                    <i class="fas fa-filter text-sm"></i>
+                </button>
+                <span id="sprf-filter-badge" class="hidden absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center rounded-full bg-green-700 text-white text-[8px] font-bold">0</span>
+            </div>
             
             <!-- Download button (Functional, exports ongoing deals) -->
             <button onclick="downloadCSV('ongoingDealsTable', 'SPRF_Ongoing_Deals.csv')" class="w-10 h-10 flex items-center justify-center bg-white border border-[#e3ddc9] rounded-lg text-[#8a8a7a] hover:bg-gray-50 hover:text-gray-600 transition duration-150 cursor-pointer shadow-sm">
@@ -117,39 +160,29 @@
     <!-- On-Going Deals Card -->
     <div class="bg-[#fffefb] border border-[#eedcbe] rounded-[24px] p-8 shadow-sm">
         <h2 class="text-[19px] font-bold text-gray-900 mb-5">On-Going Deals</h2>
-        <div class="overflow-x-auto">
+        <div class="mx-[-32px] bg-[#faf8f2] border-y border-[#eedcbe] px-8 py-2 overflow-x-auto">
             <table class="w-full text-xs text-left text-gray-800 border-collapse">
                 <thead>
-                    <tr class="border-b border-[#eedcbe]">
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Deal Name <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
+                    <tr class="border-b border-[#eedcbe]" data-table-id="ongoingDealsTable">
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('ongoingDealsTable', 0, 'string', this)">
+                            <span class="flex items-center gap-1">Deal Name <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
+                        </th>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('ongoingDealsTable', 1, 'string', this)">
+                            <span class="flex items-center gap-1">Customer <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
+                        </th>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none relative">
+                            <span class="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition" onclick="toggleStageFilterMenu('ongoingDealsTable', this, event)">
+                                Stage <i class="fas fa-filter text-[10px] text-gray-400"></i>
                             </span>
                         </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Customer <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('ongoingDealsTable', 3, 'currency', this)">
+                            <span class="flex items-center gap-1">Value <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Stage <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('ongoingDealsTable', 4, 'date', this)">
+                            <span class="flex items-center gap-1">Expected Close <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
-                        <th class="pb-3 px-2 font-bold text-[#3aa0c9] select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-[#2d83a5] transition duration-150">
-                                Value <i class="fas fa-chevron-down text-[10px] text-[#3aa0c9]/75"></i>
-                            </span>
-                        </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Expected Close <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
-                        </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Owner <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('ongoingDealsTable', 5, 'string', this)">
+                            <span class="flex items-center gap-1">Owner <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
                     </tr>
                 </thead>
@@ -163,11 +196,11 @@
                 @endphp
                 <tbody class="divide-y divide-[#f5f2e9]" id="ongoingDealsTable">
                     @forelse ($ongoingDeals as $deal)
-                        @if (!empty($q) && !(stripos($deal->deal_name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
+                        @if (!empty($q) && !(stripos($deal->name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
                             @continue
                         @endif
                         <tr class="hover:bg-[#fffcf4]/50 transition duration-150">
-                            <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->deal_name, $q) !!}</td>
+                            <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->name, $q) !!}</td>
                             <td class="py-4 px-2 text-gray-800">{!! highlightMatch($deal->customer, $q) !!}</td>
                             <td class="py-4 px-2">
                                 <span class="inline-block px-3 py-1 rounded-[6px] {{ $stageClasses[$deal->stage] ?? 'bg-gray-100 text-gray-800' }} text-[10px] font-bold">
@@ -194,39 +227,29 @@
             <h2 class="text-[19px] font-bold text-gray-900 m-0">Past Deals</h2>
             <span class="text-xs text-gray-500 font-bold select-none cursor-pointer hover:underline" onclick="downloadCSV('pastDealsTable', 'SPRF_Past_Deals.csv')">Export CSV</span>
         </div>
-        <div class="overflow-x-auto">
+        <div class="mx-[-32px] bg-[#faf8f2] border-y border-[#eedcbe] px-8 py-2 overflow-x-auto">
             <table class="w-full text-xs text-left text-gray-800 border-collapse">
                 <thead>
-                    <tr class="border-b border-[#eedcbe]">
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Deal Name <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
+                    <tr class="border-b border-[#eedcbe]" data-table-id="pastDealsTable">
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('pastDealsTable', 0, 'string', this)">
+                            <span class="flex items-center gap-1">Deal Name <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
+                        </th>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('pastDealsTable', 1, 'string', this)">
+                            <span class="flex items-center gap-1">Customer <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
+                        </th>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none relative">
+                            <span class="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition" onclick="toggleStageFilterMenu('pastDealsTable', this, event)">
+                                Stage <i class="fas fa-filter text-[10px] text-gray-400"></i>
                             </span>
                         </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Customer <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('pastDealsTable', 3, 'currency', this)">
+                            <span class="flex items-center gap-1">Value <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Stage <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('pastDealsTable', 4, 'date', this)">
+                            <span class="flex items-center gap-1">Expected Close <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
-                        <th class="pb-3 px-2 font-bold text-[#3aa0c9] select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-[#2d83a5] transition duration-150">
-                                Value <i class="fas fa-chevron-down text-[10px] text-[#3aa0c9]/75"></i>
-                            </span>
-                        </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Expected Close <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
-                        </th>
-                        <th class="pb-3 px-2 font-bold text-gray-950 select-none">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-gray-600 transition duration-150">
-                                Owner <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
-                            </span>
+                        <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('pastDealsTable', 5, 'string', this)">
+                            <span class="flex items-center gap-1">Owner <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>
                     </tr>
                 </thead>
@@ -238,11 +261,11 @@
                 @endphp
                 <tbody class="divide-y divide-[#f5f2e9]" id="pastDealsTable">
                     @forelse ($pastDeals as $deal)
-                        @if (!empty($q) && !(stripos($deal->deal_name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
+                        @if (!empty($q) && !(stripos($deal->name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
                             @continue
                         @endif
                         <tr class="hover:bg-[#fffcf4]/50 transition duration-150">
-                            <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->deal_name, $q) !!}</td>
+                            <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->name, $q) !!}</td>
                             <td class="py-4 px-2 text-gray-800">{!! highlightMatch($deal->customer, $q) !!}</td>
                             <td class="py-4 px-2">
                                 <span class="inline-block px-3 py-1 rounded-[6px] {{ $pastStageClasses[$deal->stage] ?? 'bg-gray-100 text-gray-800' }} text-[10px] font-bold">
@@ -314,6 +337,75 @@
                     @endif
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SPRF Filter Popover ==================== -->
+<div id="sprf-filter-overlay" class="fixed inset-0 z-40 hidden" onclick="closeSprfFilter()"></div>
+<div id="sprf-filter-panel" class="fixed z-50 hidden" style="top:0;right:0;">
+    <div class="w-[340px] max-w-[95vw] bg-[#fffefb] border border-[#eedcbe] rounded-[20px] shadow-2xl overflow-hidden mt-2 mr-2" style="max-height:calc(100vh - 24px); overflow-y:auto;">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#eedcbe]">
+            <span class="text-sm font-extrabold text-gray-900"><i class="fas fa-filter text-xs text-green-700 mr-1.5"></i>Filter Deals</span>
+            <button onclick="closeSprfFilter()" class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition text-xs cursor-pointer">✕</button>
+        </div>
+
+        <div class="px-5 py-4 space-y-4">
+            <!-- Stage Multi-select -->
+            <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Stage</label>
+                <div class="flex flex-wrap gap-2" id="sprf-filter-stages">
+                    @php $allStages = ['Proposal','Negotiation','Qualification','On-Hold','Won','Lost']; @endphp
+                    @foreach ($allStages as $st)
+                        @php
+                            $colors = [
+                                'Proposal'      => 'border-[#3355bb]/30 text-[#3355bb] peer-checked:bg-[#dbe6ff] peer-checked:border-[#3355bb]',
+                                'Negotiation'   => 'border-[#a67c00]/30 text-[#a67c00] peer-checked:bg-[#fff9c4] peer-checked:border-[#a67c00]',
+                                'Qualification' => 'border-[#b0447a]/30 text-[#b0447a] peer-checked:bg-[#fde2f0] peer-checked:border-[#b0447a]',
+                                'On-Hold'       => 'border-[#dc2626]/30 text-[#dc2626] peer-checked:bg-[#fee2e2] peer-checked:border-[#dc2626]',
+                                'Won'           => 'border-[#15803d]/30 text-[#15803d] peer-checked:bg-[#dcfce7] peer-checked:border-[#15803d]',
+                                'Lost'          => 'border-[#0369a1]/30 text-[#0369a1] peer-checked:bg-[#e0f2fe] peer-checked:border-[#0369a1]',
+                            ];
+                        @endphp
+                        <label class="relative cursor-pointer select-none">
+                            <input type="checkbox" name="filter_stage" value="{{ $st }}" class="peer sr-only">
+                            <span class="inline-block px-3 py-1.5 rounded-full border text-[10px] font-bold transition-all duration-150 {{ $colors[$st] ?? 'border-gray-300 text-gray-600' }}">{{ $st }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Owner -->
+            <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Owner</label>
+                <input id="sprf-filter-owner" type="text" placeholder="e.g. Juan Dela Cruz"
+                       class="w-full border border-[#e3ddc9] rounded-lg px-3 py-2.5 text-xs text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-green-700/40 focus:border-green-700 transition placeholder:text-gray-400" />
+            </div>
+
+            <!-- Value Range -->
+            <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Deal Value Range</label>
+                <div class="flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">₱</span>
+                        <input id="sprf-filter-min" type="number" min="0" placeholder="Min"
+                               class="w-full border border-[#e3ddc9] rounded-lg pl-7 pr-3 py-2.5 text-xs text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-green-700/40 focus:border-green-700 transition placeholder:text-gray-400" />
+                    </div>
+                    <span class="text-gray-400 text-xs font-bold">—</span>
+                    <div class="relative flex-1">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">₱</span>
+                        <input id="sprf-filter-max" type="number" min="0" placeholder="Max"
+                               class="w-full border border-[#e3ddc9] rounded-lg pl-7 pr-3 py-2.5 text-xs text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-green-700/40 focus:border-green-700 transition placeholder:text-gray-400" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between px-5 py-4 border-t border-[#eedcbe] bg-[#fffdf8]">
+            <button onclick="clearSprfFilter()" class="px-4 py-2 rounded-lg border border-[#e3ddc9] text-[11px] font-bold text-gray-600 hover:bg-gray-50 transition cursor-pointer">Clear All</button>
+            <button onclick="applySprfFilter()" class="px-5 py-2 rounded-lg bg-green-800 text-[11px] font-bold text-white hover:bg-green-900 transition cursor-pointer">Apply Filters</button>
         </div>
     </div>
 </div>
@@ -403,6 +495,9 @@
 
 @push('scripts')
 <script>
+/* ---- Available months for calendar (from DB) ---- */
+window._sprfAvailMonths = @json($availableMonths);
+
 /* ============================================================
    Shared Calendar Popup Engine
    ============================================================ */
@@ -504,11 +599,16 @@
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+        const _avail = window._sprfAvailMonths || [];
+        const _ym = year + '-' + String(month + 1).padStart(2, '0');
+        const _hasData = !_avail.length || _avail.includes(_ym);
+
         let html = `<div class="cal-nav-row">
             <button class="cal-nav-btn" data-nav="-1">&#8249;</button>
             <span class="cal-nav-title">${MONTHS[month]} ${year}</span>
             <button class="cal-nav-btn" data-nav="1">&#8250;</button>
         </div>
+        ${_avail.length ? `<div class="text-center pb-2 -mt-1"><span class="inline-flex items-center gap-1 text-[9px] font-bold ${_hasData ? 'text-green-600' : 'text-amber-500'}">${_hasData ? '● Data available' : '◌ No data for this period'}</span></div>` : ''}
         <div class="cal-grid-month">`;
 
         DAYS.forEach(d => { html += `<div class="cal-day-head">${d}</div>`; });
@@ -570,8 +670,11 @@
             const s = new Date(year, q.months[0], 1);
             const e = new Date(year, q.months[2] + 1, 0);
             const isActive = st.startDate && st.endDate && sameDay(s, st.startDate) && sameDay(e, st.endDate);
-            html += `<button class="cal-quarter-btn${isActive ? ' is-selected' : ''}" data-qsy="${year}" data-qsm="${q.months[0]}" data-qey="${year}" data-qem="${q.months[2]+1}">
+            const _avail = window._sprfAvailMonths || [];
+            const _qHasData = !_avail.length || q.months.some(m => _avail.includes(year + '-' + String(m + 1).padStart(2, '0')));
+            html += `<button class="cal-quarter-btn${isActive ? ' is-selected' : ''}${_avail.length && !_qHasData ? ' opacity-40' : ''}" data-qsy="${year}" data-qsm="${q.months[0]}" data-qey="${year}" data-qem="${q.months[2]+1}">
                         ${q.label}<span class="cal-quarter-sub">${MONTHS_SHORT[q.months[0]]}&ndash;${MONTHS_SHORT[q.months[2]]}</span>
+                        ${_avail.length ? `<span style="display:block;font-size:8px;margin-top:2px;color:${_qHasData ? '#15803d' : '#f59e0b'}">${_qHasData ? '● data' : 'no data'}</span>` : ''}
                      </button>`;
         });
         html += '</div>';
@@ -595,7 +698,9 @@
             const s = new Date(y, 0, 1);
             const e = new Date(y, 11, 31);
             const isActive = st.startDate && st.endDate && sameDay(s, st.startDate) && sameDay(e, st.endDate);
-            html += `<button class="cal-year-btn${isActive ? ' is-selected' : ''}" data-y="${y}">${y}</button>`;
+            const _avail = window._sprfAvailMonths || [];
+            const _yHasData = !_avail.length || _avail.some(m => m.startsWith(y + '-'));
+            html += `<button class="cal-year-btn${isActive ? ' is-selected' : ''}${_avail.length && !_yHasData ? ' opacity-40' : ''}" data-y="${y}">${y}${_avail.length ? `<span style="display:block;font-size:8px;color:${_yHasData ? '#15803d' : '#f59e0b'}">${_yHasData ? '●' : '◌'}</span>` : ''}</button>`;
         }
         html += '</div>';
         grid.innerHTML = html;
@@ -766,6 +871,294 @@
         const range = fmtRange(st.startDate, st.endDate);
         closeCalendarPopup(popupId);
         window.location.href = '?date_range=' + encodeURIComponent(range);
+    };
+})();
+</script>
+@endpush
+
+@push('scripts')
+<script>
+/* ============================================================
+   SPRF Filter Engine
+   ============================================================ */
+(function () {
+    const filterPanel   = () => document.getElementById('sprf-filter-panel');
+    const filterOverlay = () => document.getElementById('sprf-filter-overlay');
+    const filterBadge   = () => document.getElementById('sprf-filter-badge');
+
+    /* ---- Position the panel below the trigger button ---- */
+    function positionPanel() {
+        const trigger = document.getElementById('sprf-filter-trigger');
+        const panel   = filterPanel();
+        if (!trigger || !panel) return;
+        const rect = trigger.getBoundingClientRect();
+        panel.style.position = 'fixed';
+        panel.style.top  = (rect.bottom + 8) + 'px';
+        panel.style.right = (window.innerWidth - rect.right) + 'px';
+        panel.style.left = 'auto';
+    }
+
+    /* ---- Open / Close ---- */
+    window.toggleSprfFilter = function () {
+        const panel = filterPanel();
+        if (panel.classList.contains('hidden')) {
+            positionPanel();
+            panel.classList.remove('hidden');
+            filterOverlay().classList.remove('hidden');
+        } else {
+            closeSprfFilter();
+        }
+    };
+
+    window.closeSprfFilter = function () {
+        filterPanel().classList.add('hidden');
+        filterOverlay().classList.add('hidden');
+    };
+
+    /* ---- Apply ---- */
+    window.applySprfFilter = function () {
+        const params = new URLSearchParams(window.location.search);
+
+        // Stages
+        params.delete('stage[]');
+        document.querySelectorAll('#sprf-filter-stages input[name="filter_stage"]:checked').forEach(cb => {
+            params.append('stage[]', cb.value);
+        });
+
+        // Owner
+        const owner = document.getElementById('sprf-filter-owner').value.trim();
+        if (owner) params.set('owner', owner);
+        else params.delete('owner');
+
+        // Value range
+        const min = document.getElementById('sprf-filter-min').value.trim();
+        const max = document.getElementById('sprf-filter-max').value.trim();
+        if (min) params.set('min_value', min);
+        else params.delete('min_value');
+        if (max) params.set('max_value', max);
+        else params.delete('max_value');
+
+        // Reset page
+        params.delete('past_page');
+
+        closeSprfFilter();
+        window.location.href = '?' + params.toString();
+    };
+
+    /* ---- Clear ---- */
+    window.clearSprfFilter = function () {
+        document.querySelectorAll('#sprf-filter-stages input[name="filter_stage"]').forEach(cb => cb.checked = false);
+        document.getElementById('sprf-filter-owner').value = '';
+        document.getElementById('sprf-filter-min').value = '';
+        document.getElementById('sprf-filter-max').value = '';
+
+        // Remove filter params from URL but keep date_range
+        const params = new URLSearchParams(window.location.search);
+        params.delete('stage[]');
+        params.delete('owner');
+        params.delete('min_value');
+        params.delete('max_value');
+        params.delete('past_page');
+
+        closeSprfFilter();
+        window.location.href = '?' + params.toString();
+    };
+
+    /* ---- Populate from URL on load ---- */
+    function populateFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        let activeCount = 0;
+
+        // Stages
+        const stages = params.getAll('stage[]');
+        if (stages.length) {
+            activeCount++;
+            document.querySelectorAll('#sprf-filter-stages input[name="filter_stage"]').forEach(cb => {
+                cb.checked = stages.includes(cb.value);
+            });
+        }
+
+        // Owner
+        const owner = params.get('owner');
+        if (owner) {
+            activeCount++;
+            document.getElementById('sprf-filter-owner').value = owner;
+        }
+
+        // Value range
+        const min = params.get('min_value');
+        const max = params.get('max_value');
+        if (min) { activeCount++; document.getElementById('sprf-filter-min').value = min; }
+        if (max) { activeCount++; document.getElementById('sprf-filter-max').value = max; }
+
+        // Badge
+        const badge = filterBadge();
+        if (activeCount > 0) {
+            badge.textContent = activeCount;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', populateFromUrl);
+})();
+
+/* ============================================================
+   Table Sorting and Column Filters (Client-Side)
+   ============================================================ */
+(function() {
+    let sortDirections = {};
+
+    window.sortSPRFTable = function(tableId, colIndex, type, headerEl) {
+        const el = document.getElementById(tableId);
+        if (!el) return;
+        const tbody = el.tagName === 'TBODY' ? el : el.querySelector('tbody');
+        if (!tbody) return;
+        
+        // Exclude empty rows
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => !r.innerText.includes('No ongoing deals') && !r.innerText.includes('No past deals') && !r.innerText.includes('No recent deals'));
+        if (rows.length === 0) return;
+        
+        // Reset header colors in this table, make selected blue
+        const headerRow = headerEl.closest('tr');
+        headerRow.querySelectorAll('th').forEach(th => {
+            th.classList.remove('text-blue-600');
+            th.classList.add('text-gray-950');
+            const icon = th.querySelector('i');
+            if (icon && !icon.classList.contains('fa-filter')) {
+                icon.className = 'fas fa-sort text-[10px] text-gray-400';
+            }
+        });
+        
+        headerEl.classList.remove('text-gray-950');
+        headerEl.classList.add('text-blue-600');
+        
+        // Toggle direction
+        const dirKey = tableId + '_' + colIndex;
+        const isAsc = !sortDirections[dirKey];
+        sortDirections[dirKey] = isAsc;
+        
+        const arrowIcon = headerEl.querySelector('i');
+        if (arrowIcon) {
+            arrowIcon.className = isAsc ? 'fas fa-sort-up text-[10px] text-blue-600' : 'fas fa-sort-down text-[10px] text-blue-600';
+        }
+
+        const parseVal = (td) => {
+            if (!td) return '';
+            let text = td.innerText.trim();
+            if (type === 'currency') {
+                return parseFloat(text.replace(/[^\d.-]/g, '')) || 0;
+            }
+            if (type === 'date') {
+                return new Date(text) || new Date(0);
+            }
+            return text.toLowerCase();
+        };
+
+        rows.sort((a, b) => {
+            const valA = parseVal(a.cells[colIndex]);
+            const valB = parseVal(b.cells[colIndex]);
+            if (valA < valB) return isAsc ? -1 : 1;
+            if (valA > valB) return isAsc ? 1 : -1;
+            return 0;
+        });
+
+        // Re-append rows
+        rows.forEach(row => tbody.appendChild(row));
+    };
+
+    window.toggleStageFilterMenu = function(tableId, headerEl, event) {
+        event.stopPropagation();
+        
+        // Remove existing temporary stage menus
+        const existingMenu = document.getElementById('sprf-stage-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+            if (existingMenu.dataset.header === headerEl.outerHTML) return;
+        }
+
+        const el = document.getElementById(tableId);
+        if (!el) return;
+        const tbody = el.tagName === 'TBODY' ? el : el.querySelector('tbody');
+        if (!tbody) return;
+        
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => !r.innerText.includes('No ongoing deals') && !r.innerText.includes('No past deals') && !r.innerText.includes('No recent deals'));
+        if (rows.length === 0) return;
+        
+        // Find unique stages in current table data
+        const stages = new Set();
+        rows.forEach(r => {
+            const stageCell = r.cells[2];
+            if (stageCell) {
+                const stageText = stageCell.innerText.trim();
+                if (stageText) stages.add(stageText);
+            }
+        });
+
+        // Create dropdown popover
+        const menu = document.createElement('div');
+        menu.id = 'sprf-stage-menu';
+        menu.className = 'absolute bg-white border border-[#eedcbe] rounded-xl shadow-xl p-3 z-50 flex flex-col gap-2 min-w-[140px] text-xs font-semibold text-gray-700';
+        menu.dataset.header = headerEl.outerHTML;
+
+        // Position it below header
+        const rect = headerEl.getBoundingClientRect();
+        menu.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        menu.style.left = (rect.left + window.scrollX) + 'px';
+
+        // Add checkboxes
+        stages.forEach(st => {
+            const label = document.createElement('label');
+            label.className = 'flex items-center gap-2 cursor-pointer select-none py-1 hover:text-gray-950';
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.value = st;
+            cb.checked = true;
+            cb.className = 'rounded text-green-700 focus:ring-green-700';
+            
+            // Check current active filter state
+            const currentFilter = headerEl.dataset.filterStage;
+            if (currentFilter) {
+                const activeFilters = currentFilter.split(',');
+                cb.checked = activeFilters.includes(st);
+            }
+
+            cb.addEventListener('change', () => {
+                const checkedStages = Array.from(menu.querySelectorAll('input:checked')).map(i => i.value);
+                headerEl.dataset.filterStage = checkedStages.join(',');
+                
+                // Style header
+                if (checkedStages.length < stages.size) {
+                    headerEl.classList.add('text-blue-600');
+                    headerEl.querySelector('i').className = 'fas fa-filter text-[10px] text-blue-600';
+                } else {
+                    headerEl.classList.remove('text-blue-600');
+                    headerEl.querySelector('i').className = 'fas fa-filter text-[10px] text-gray-400';
+                }
+
+                // Filter rows
+                rows.forEach(row => {
+                    const rowStage = row.cells[2].innerText.trim();
+                    row.style.display = checkedStages.includes(rowStage) ? '' : 'none';
+                });
+            });
+
+            label.appendChild(cb);
+            label.appendChild(document.createTextNode(' ' + st));
+            menu.appendChild(label);
+        });
+
+        document.body.appendChild(menu);
+
+        // Click outside closes it
+        const clickOutside = (e) => {
+            if (!menu.contains(e.target) && e.target !== headerEl) {
+                menu.remove();
+                document.removeEventListener('click', clickOutside);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', clickOutside), 10);
     };
 })();
 </script>

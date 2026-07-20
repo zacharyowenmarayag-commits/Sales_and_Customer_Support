@@ -10,5 +10,5 @@ class CustomerSegment extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['segment_id', 'segment_name', 'description'];
+    protected $fillable = ['segment_id', 'segment_name', 'description', 'estimated_count', 'projected_sales'];
 }

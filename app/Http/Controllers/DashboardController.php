@@ -3,29 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\FollowUp;
+use App\Services\DashboardService;
 use App\Support\ArrayPaginator;
 use App\Support\CrmStorage;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(DashboardService $dashboardService)
     {
-        try {
-            $sprfKpis    = \App\Models\KpiStat::where('date_range', 'May 1 - May 31, 2026')->first();
-            $recentDeals = \App\Models\Deal::where('is_ongoing', true)->take(5)->get();
-        } catch (\Exception $e) {
-            $sprfKpis    = null;
-            $recentDeals = collect();
-        }
-
-        $somOrders = \App\Models\SalesOrder::count();
-
-        return view('dashboard.index', [
-            'sprfKpis'    => $sprfKpis,
-            'somOrders'   => $somOrders,
-            'recentDeals' => $recentDeals,
-        ]);
+        return view('dashboard.index', $dashboardService->prepareOverviewData());
     }
 
     public function asscm(Request $request)
@@ -103,32 +90,142 @@ class DashboardController extends Controller
 
     public function sprf(Request $request)
     {
-        $dateRange = $request->query('date_range', 'May 1 - May 31, 2026');
         $q = $request->query('q');
 
-        $kpis = \App\Models\KpiStat::where('date_range', $dateRange)->first();
-        if (!$kpis) {
-            $dateRange = 'May 1 - May 31, 2026';
-            $kpis = \App\Models\KpiStat::where('date_range', $dateRange)->first();
-        }
+        // --- Query available date ranges (up to 5 most recent with KPI data) ---
+        $parseKey = function ($range) {
+            $months = ['January'=>1,'February'=>2,'March'=>3,'April'=>4,'May'=>5,'June'=>6,
+                       'July'=>7,'August'=>8,'September'=>9,'October'=>10,'November'=>11,'December'=>12];
+            if (preg_match('/^(\w+)\s+\d+.*,\s*(\d{4})$/', $range, $m)) {
+                return intval($m[2]) * 100 + ($months[$m[1]] ?? 0);
+            }
+            return 0;
+        };
 
-        $regionSales = \App\Models\RegionSale::where('date_range', $dateRange)->get();
-        $repSales = \App\Models\RepSale::where('date_range', $dateRange)->get();
+        $availableDateRanges = \App\Models\KpiStat::select('date_range')
+            ->distinct()
+            ->get()
+            ->pluck('date_range')
+            ->filter()
+            ->sortByDesc($parseKey)
+            ->values()
+            ->take(5);
+
+        // Default to most recent month with data
+        $firstAvailable = $availableDateRanges->first() ?? 'May 1 - May 31, 2026';
+        $dateRange = $request->query('date_range', $firstAvailable);
+
+        // YYYY-MM list for calendar availability highlighting
+        $availableMonths = $availableDateRanges->map(function ($range) {
+            $months = ['January'=>1,'February'=>2,'March'=>3,'April'=>4,'May'=>5,'June'=>6,
+                       'July'=>7,'August'=>8,'September'=>9,'October'=>10,'November'=>11,'December'=>12];
+            if (preg_match('/^(\w+)\s+\d+.*,\s*(\d{4})$/', $range, $m)) {
+                $month = $months[$m[1]] ?? null;
+                if ($month) return $m[2] . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+            }
+            return null;
+        })->filter()->values();
+
+        $kpis            = \App\Models\KpiStat::where('date_range', $dateRange)->first();
+        $regionSales     = \App\Models\RegionSale::where('date_range', $dateRange)->get();
+        $repSales        = \App\Models\RepSale::where('date_range', $dateRange)->get();
         $forecastTargets = \App\Models\ForecastTarget::where('date_range', $dateRange)->get();
-        $productSales = \App\Models\ProductSale::where('date_range', $dateRange)->get();
+        $productSales    = \App\Models\ProductSale::where('date_range', $dateRange)->get();
         $salesPerformance = \App\Models\SalesPerformance::where('date_range', $dateRange)->get();
-        $recentDeals = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', true)->get();
+        $recentDeals     = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', true)->get();
+
+        $highlightMatch = function (string $text, ?string $query): string {
+            if (trim((string) $query) === '') {
+                return e($text);
+            }
+            $escapedQuery = preg_quote($query, '/');
+            return preg_replace('/(' . $escapedQuery . ')/i', '<span class="text-blue-600">$1</span>', e($text));
+        };
+
+        $getProgressWidth = function (string $targetText): float {
+            return min(100, max(0, floatval(str_replace('%', '', $targetText))));
+        };
+
+        $productSales = $productSales->map(function ($sale) use ($q, $highlightMatch) {
+            $sale->highlighted_name = $highlightMatch($sale->product_name, $q);
+            return $sale;
+        });
+
+        $regionSales = $regionSales->map(function ($region) use ($q, $highlightMatch) {
+            $region->highlighted_name = $highlightMatch($region->region_name, $q);
+            return $region;
+        });
+
+        $repSales = $repSales->map(function ($rep) use ($q, $highlightMatch, $getProgressWidth) {
+            $rep->highlighted_name = $highlightMatch($rep->rep_name, $q);
+            $rep->progress_width = $getProgressWidth($rep->vs_target);
+            return $rep;
+        });
+
+        $stageClasses = [
+            'Proposal' => 'badge-proposal',
+            'Negotiation' => 'badge-negotiation',
+            'Qualification' => 'badge-qualification',
+            'On-Hold' => 'badge-onhold',
+        ];
+
+        $recentDeals = $recentDeals->map(function ($deal) use ($q, $highlightMatch, $stageClasses) {
+            $deal->highlighted_name = $highlightMatch($deal->name, $q);
+            $deal->highlighted_customer = $highlightMatch($deal->customer, $q);
+            $deal->stage_class = $stageClasses[$deal->stage] ?? '';
+            return $deal;
+        });
+
+        $kpiCards = [
+            [
+                'label' => 'Total Sales',
+                'value' => $kpis->total_sales ?? '₱0',
+                'delta' => $kpis->sales_delta ?? '',
+                'icon' => 'sales',
+                'symbol' => '₱',
+            ],
+            [
+                'label' => 'Total Orders',
+                'value' => $kpis->total_orders ?? '0',
+                'delta' => $kpis->orders_delta ?? '',
+                'icon' => 'orders',
+                'symbol' => '🛒',
+            ],
+            [
+                'label' => 'Average Deal Size',
+                'value' => $kpis->avg_deal_size ?? '₱0',
+                'delta' => $kpis->deal_delta ?? '',
+                'icon' => 'deal',
+                'symbol' => '◆',
+            ],
+            [
+                'label' => 'Win Rate',
+                'value' => $kpis->win_rate ?? '0%',
+                'delta' => $kpis->win_delta ?? '',
+                'icon' => 'win',
+                'symbol' => '◎',
+            ],
+        ];
 
         return view('SPRF.index', [
-            'dateRange' => $dateRange,
-            'kpis' => $kpis,
-            'regionSales' => $regionSales,
-            'repSales' => $repSales,
-            'forecastTargets' => $forecastTargets,
-            'productSales' => $productSales,
-            'salesPerformance' => $salesPerformance,
-            'recentDeals' => $recentDeals,
-            'q' => $q,
+            'dateRange'           => $dateRange,
+            'kpis'                => $kpis,
+            'kpiCards'            => $kpiCards,
+            'sectionDefs'         => [
+                ['id' => 'sprf-section-kpi', 'label' => 'KPI Summary Cards', 'icon' => 'fa-th-large'],
+                ['id' => 'sprf-section-charts', 'label' => 'Sales Charts', 'icon' => 'fa-chart-line'],
+                ['id' => 'sprf-section-details', 'label' => 'Region, Reps & Forecast', 'icon' => 'fa-chart-bar'],
+                ['id' => 'sprf-section-deals', 'label' => 'Recent Deals', 'icon' => 'fa-handshake'],
+            ],
+            'regionSales'         => $regionSales,
+            'repSales'            => $repSales,
+            'forecastTargets'     => $forecastTargets,
+            'productSales'        => $productSales,
+            'salesPerformance'    => $salesPerformance,
+            'recentDeals'         => $recentDeals,
+            'q'                   => $q,
+            'availableDateRanges' => $availableDateRanges,
+            'availableMonths'     => $availableMonths,
         ]);
     }
 
@@ -281,19 +378,54 @@ class DashboardController extends Controller
         return redirect()->route('som')->with('success', 'Sales order created successfully.');
     }
 
-    public function crmDashboard()
+    public function crmDashboard(Request $request)
     {
-        $customersCount = count(CrmStorage::listCustomers());
-        $logsCount = CrmStorage::communicationLogsCount();
+        $q = $request->query('q');
 
-        $pendingFollowUps = CrmStorage::followUpsCountByStatus('Pending');
-        $completedFollowUps = CrmStorage::followUpsCountByStatus('Completed');
+        // Total Customers
+        $customersList = CrmStorage::listCustomers($q);
+        $customersCount = count($customersList);
+
+        // Active Deals
+        $activeDeals = \App\Models\Deal::where('is_ongoing', true)->count();
+
+        // Revenue (YTD)
+        $revenueYTD = \App\Models\SalesOrder::sum('total_amount');
+
+        // Churn Rate
+        $customers = \App\Models\Customer::with('salesOrders')->get();
+        $totalCount = $customers->count();
+        $inactiveCount = 0;
+        foreach ($customers as $customer) {
+            $totalSpent = (float)$customer->salesOrders->sum('total_amount');
+            $orderCount = $customer->salesOrders->count();
+            $isNew = $customer->created_at && $customer->created_at->greaterThanOrEqualTo(now()->subDays(30));
+            if ($totalSpent < 30000 && $orderCount == 0 && !$isNew) {
+                $inactiveCount++;
+            }
+        }
+        $churnRate = $totalCount > 0 ? number_format(($inactiveCount / $totalCount) * 100, 1) : 2.4;
+
+        // Upcoming Tasks (Limit to 4)
+        $allTasks = CrmStorage::listFollowUps($q);
+        $upcomingTasks = array_filter($allTasks, function ($t) {
+            return $t->status === 'Pending';
+        });
+        usort($upcomingTasks, function ($a, $b) {
+            if (!$a->due_date) return 1;
+            if (!$b->due_date) return -1;
+            return $a->due_date->timestamp <=> $b->due_date->timestamp;
+        });
+        $upcomingTasks = array_slice($upcomingTasks, 0, 4);
 
         return view('CRM.dashboard', [
             'customersCount' => $customersCount,
-            'logsCount' => $logsCount,
-            'pendingFollowUps' => $pendingFollowUps,
-            'completedFollowUps' => $completedFollowUps,
+            'activeDeals' => $activeDeals,
+            'revenueYTD' => $revenueYTD,
+            'churnRate' => $churnRate,
+            'upcomingTasks' => $upcomingTasks,
+            'allTasks' => $allTasks,
+            'q' => $q,
         ]);
     }
 
@@ -363,6 +495,7 @@ class DashboardController extends Controller
 
     public function crmSegmentation()
     {
+        $segments = \App\Models\CustomerSegment::all();
         $customers = \App\Models\Customer::with('salesOrders')->get();
         $totalCount = $customers->count();
 
@@ -397,7 +530,24 @@ class DashboardController extends Controller
             }
         }
 
+        foreach ($segments as $seg) {
+            if ($seg->segment_id === 'SEG-NEW') {
+                $seg->estimated_count = $newCount;
+                $seg->projected_sales = $newRevenue;
+            } elseif ($seg->segment_id === 'SEG-REG') {
+                $seg->estimated_count = $regularCount;
+                $seg->projected_sales = $regularRevenue;
+            } elseif ($seg->segment_id === 'SEG-VIP') {
+                $seg->estimated_count = $vipCount;
+                $seg->projected_sales = $vipRevenue;
+            } elseif ($seg->segment_id === 'SEG-INA') {
+                $seg->estimated_count = $inactiveCount;
+                $seg->projected_sales = $inactiveRevenue;
+            }
+        }
+
         return view('CRM.segmentation', [
+            'segments' => $segments,
             'totalCount' => $totalCount,
             'newCount' => $newCount,
             'regularCount' => $regularCount,
@@ -410,24 +560,136 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function crmSegmentationStore(Request $request)
+    {
+        $validated = $request->validate([
+            'segment_name' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'estimated_count' => 'nullable|integer',
+            'projected_sales' => 'nullable|numeric',
+        ]);
+
+        $nextId = 'SEG-' . (\App\Models\CustomerSegment::count() + 1) . '-' . mt_rand(100, 999);
+
+        \App\Models\CustomerSegment::create([
+            'segment_id' => $nextId,
+            'segment_name' => $validated['segment_name'],
+            'description' => $validated['description'],
+            'estimated_count' => $validated['estimated_count'] ?? 0,
+            'projected_sales' => $validated['projected_sales'] ?? 0.00,
+        ]);
+
+        return redirect()->back()->with('success', 'Segment created successfully.');
+    }
+
+    public function crmSegmentationUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'segment_id' => 'required|string|exists:customer_segments,segment_id',
+            'segment_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'estimated_count' => 'nullable|integer',
+            'projected_sales' => 'nullable|numeric',
+        ]);
+
+        $segment = \App\Models\CustomerSegment::findOrFail($validated['segment_id']);
+        
+        $segment->update([
+            'segment_name'    => $request->filled('segment_name') ? $validated['segment_name'] : $segment->segment_name,
+            'description'     => $request->filled('description') ? $validated['description'] : $segment->description,
+            'estimated_count' => $request->filled('estimated_count') ? (int)$validated['estimated_count'] : $segment->estimated_count,
+            'projected_sales' => $request->filled('projected_sales') ? (float)$validated['projected_sales'] : $segment->projected_sales,
+        ]);
+
+        return redirect()->back()->with('success', 'Segment updated successfully.');
+    }
+
     public function sprfDeals(Request $request)
     {
-        $dateRange = $request->query('date_range', 'May 1 - May 31, 2026');
         $q = $request->query('q');
 
-        $hasData = \App\Models\Deal::where('date_range', $dateRange)->exists();
-        if (!$hasData) {
-            $dateRange = 'May 1 - May 31, 2026';
+        // --- Query available date ranges (up to 5 most recent with deal data) ---
+        $parseKey = function ($range) {
+            $months = ['January'=>1,'February'=>2,'March'=>3,'April'=>4,'May'=>5,'June'=>6,
+                       'July'=>7,'August'=>8,'September'=>9,'October'=>10,'November'=>11,'December'=>12];
+            if (preg_match('/^(\w+)\s+\d+.*,\s*(\d{4})$/', $range, $m)) {
+                return intval($m[2]) * 100 + ($months[$m[1]] ?? 0);
+            }
+            return 0;
+        };
+
+        $availableDateRanges = \App\Models\Deal::select('date_range')
+            ->distinct()
+            ->get()
+            ->pluck('date_range')
+            ->filter()
+            ->sortByDesc($parseKey)
+            ->values()
+            ->take(5);
+
+        $firstAvailable = $availableDateRanges->first() ?? 'May 1 - May 31, 2026';
+        $dateRange = $request->query('date_range', $firstAvailable);
+
+        // YYYY-MM list for calendar availability highlighting
+        $availableMonths = $availableDateRanges->map(function ($range) {
+            $months = ['January'=>1,'February'=>2,'March'=>3,'April'=>4,'May'=>5,'June'=>6,
+                       'July'=>7,'August'=>8,'September'=>9,'October'=>10,'November'=>11,'December'=>12];
+            if (preg_match('/^(\w+)\s+\d+.*,\s*(\d{4})$/', $range, $m)) {
+                $month = $months[$m[1]] ?? null;
+                if ($month) return $m[2] . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+            }
+            return null;
+        })->filter()->values();
+
+        // --- Filter parameters ---
+        $stages   = $request->query('stage', []);
+        $owner    = $request->query('owner');
+        $minValue = $request->query('min_value');
+        $maxValue = $request->query('max_value');
+
+        $parseValue = function ($val) {
+            if (is_numeric($val)) return (float)$val;
+            $cleaned = preg_replace('/[^\d.]/', '', $val);
+            return $cleaned !== '' ? (float)$cleaned : null;
+        };
+
+        $ongoingQuery = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', true);
+        $pastQuery    = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', false);
+
+        if (!empty($stages) && is_array($stages)) {
+            $ongoingQuery->whereIn('stage', $stages);
+            $pastQuery->whereIn('stage', $stages);
         }
 
-        $ongoingDeals = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', true)->get();
-        $pastDeals = \App\Models\Deal::where('date_range', $dateRange)->where('is_ongoing', false)->paginate(5, ['*'], 'past_page');
+        if ($owner) {
+            $ongoingQuery->where('owner', 'like', "%{$owner}%");
+            $pastQuery->where('owner', 'like', "%{$owner}%");
+        }
+
+        $ongoingDeals = $ongoingQuery->get();
+        $pastDeals    = $pastQuery->paginate(5, ['*'], 'past_page');
+
+        if ($minValue !== null || $maxValue !== null) {
+            $filterByValue = function ($collection) use ($parseValue, $minValue, $maxValue) {
+                return $collection->filter(function ($deal) use ($parseValue, $minValue, $maxValue) {
+                    $numericValue = $parseValue($deal->value);
+                    if ($numericValue === null) return true;
+                    if ($minValue !== null && $numericValue < (float)$minValue) return false;
+                    if ($maxValue !== null && $numericValue > (float)$maxValue) return false;
+                    return true;
+                });
+            };
+            $ongoingDeals = $filterByValue($ongoingDeals);
+        }
 
         return view('SPRF.deals', [
-            'dateRange' => $dateRange,
-            'ongoingDeals' => $ongoingDeals,
-            'pastDeals' => $pastDeals,
-            'q' => $q,
+            'dateRange'           => $dateRange,
+            'ongoingDeals'        => $ongoingDeals,
+            'pastDeals'           => $pastDeals,
+            'q'                   => $q,
+            'availableDateRanges' => $availableDateRanges,
+            'availableMonths'     => $availableMonths,
         ]);
     }
 }
+
