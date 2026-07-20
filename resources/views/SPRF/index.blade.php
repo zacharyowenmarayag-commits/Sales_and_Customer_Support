@@ -717,6 +717,11 @@
                 @endforelse
             </tbody>
         </table>
+        <div class="flex justify-end mt-3">
+            <a href="{{ route('sprf.deals', ['date_range' => $dateRange]) }}" class="sprf-view-all">
+                View all deals <i class="fas fa-arrow-right text-[10px]"></i>
+            </a>
+        </div>
     </div>
 </div>
 
