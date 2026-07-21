@@ -2,8 +2,12 @@
 
 @section('title', 'AmbatuGrow - CRM Customers')
 
+@push('styles')
+    @vite(['resources/css/pages/crm-pages.css'])
+@endpush
+
 @section('content')
-<div class="space-y-6">
+<div class="crm-page space-y-6">
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Customers</h1>
@@ -21,20 +25,13 @@
         </div>
     @endif
 
-    <div class="space-y-2">
-        <label class="text-sm font-semibold text-gray-700">Search</label>
-        <div class="relative">
-            <input
-                type="text"
-                name="q"
-                value="{{ old('q', $q) }}"
-                id="customerSearch"
-                placeholder="Search customer name..."
-                class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
-            />
-            <i class="fas fa-search absolute right-4 top-3.5 text-gray-400 text-sm"></i>
-        </div>
-    </div>
+    <x-crm.search-field
+        id="customerSearch"
+        label="Search"
+        name="q"
+        :value="$q"
+        placeholder="Search customer name..."
+    />
 
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <table class="w-full text-sm">
@@ -66,7 +63,7 @@
     </div>
 </div>
 
-<div id="modalOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-white/60 opacity-0 pointer-events-none transition-opacity duration-200">
+<div id="modalOverlay" class="crm-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-white/60 opacity-0 pointer-events-none transition-opacity duration-200">
     <div class="bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-7 transform translate-y-1.5 transition-transform duration-200" id="modalCard">
         <h2 class="text-base font-bold text-gray-900 mb-5">Add Customer</h2>
 
@@ -139,6 +136,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/crm-pages.js') }}?v={{ filemtime(public_path('js/crm-pages.js')) }}"></script>
 <script>
     const mainContent = document.getElementById('mainContent');
     const modalOverlay = document.getElementById('modalOverlay');
@@ -183,28 +181,7 @@
         }
     });
 
-    // Name searcher — fires as you type (300 ms debounce)
-    const searchInput = document.getElementById('customerSearch');
-    if (searchInput) {
-        const applySearch = () => {
-            const value = searchInput.value.trim();
-            const url = new URL(window.location.href);
-            if (value) url.searchParams.set('q', value);
-            else url.searchParams.delete('q');
-            url.searchParams.set('page', '1');
-            window.location.href = url.toString();
-        };
-
-        let debounceTimer;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 800);
-        });
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { clearTimeout(debounceTimer); applySearch(); }
-        });
-    }
+    window.applyQuerySearch('customerSearch', window.location.href);
 
     @if ($errors->any())
         openModal();

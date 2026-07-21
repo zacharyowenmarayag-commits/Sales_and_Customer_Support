@@ -18,6 +18,7 @@ class SupportCase extends Model
         'issue',
         'priority',
         'status',
+        'assigned_to',
     ];
 
     public function customer(): BelongsTo

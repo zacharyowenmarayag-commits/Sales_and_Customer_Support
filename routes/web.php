@@ -8,6 +8,8 @@ use App\Http\Controllers\SprfController;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/asscm', [DashboardController::class, 'asscm'])->name('asscm');
 Route::post('/asscm', [DashboardController::class, 'asscmStore'])->name('asscm.store');
+Route::get('/asscm/{caseId}/view', [DashboardController::class, 'asscmView'])->name('asscm.view');
+Route::post('/asscm/{caseId}/update', [DashboardController::class, 'asscmUpdate'])->name('asscm.update');
 Route::redirect('/sprf', '/SPRF');
 Route::get('/SPRF', [DashboardController::class, 'sprf'])->name('sprf');
 Route::get('/som', [DashboardController::class, 'som'])->name('som');

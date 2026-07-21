@@ -2,8 +2,12 @@
 
 @section('title', 'AmbatuGrow - Purchase History')
 
+@push('styles')
+    @vite(['resources/css/pages/crm-pages.css'])
+@endpush
+
 @section('content')
-<div class="space-y-6">
+<div class="crm-page space-y-6">
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Purchase History</h1>
@@ -17,20 +21,13 @@
         </a>
     </div>
 
-    <div class="space-y-2">
-        <label class="text-sm font-semibold text-gray-700">Search</label>
-        <div class="relative">
-            <input
-                type="text"
-                name="q"
-                value="{{ old('q', $q) }}"
-                id="purchaseSearch"
-                placeholder="Search customer name..."
-                class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
-            />
-            <i class="fas fa-search absolute right-4 top-3.5 text-gray-400 text-sm"></i>
-        </div>
-    </div>
+    <x-crm.search-field
+        id="purchaseSearch"
+        label="Search"
+        name="q"
+        :value="$q"
+        placeholder="Search customer name..."
+    />
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <table class="w-full text-sm">
@@ -65,29 +62,9 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/crm-pages.js') }}?v={{ filemtime(public_path('js/crm-pages.js')) }}"></script>
 <script>
-    const searchInput = document.getElementById('purchaseSearch');
-    if (searchInput) {
-        const applySearch = () => {
-            const value = searchInput.value.trim();
-            const url = new URL(window.location.href);
-            if (value) url.searchParams.set('q', value);
-            else url.searchParams.delete('q');
-            url.searchParams.set('page', '1');
-            window.location.href = url.toString();
-        };
-
-        // Fires as you type (800 ms debounce)
-        let debounceTimer;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 800);
-        });
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { clearTimeout(debounceTimer); applySearch(); }
-        });
-    }
+    window.applyQuerySearch('purchaseSearch', window.location.href);
 </script>
 @endpush
 

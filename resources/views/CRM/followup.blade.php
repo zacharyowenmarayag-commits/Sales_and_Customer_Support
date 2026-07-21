@@ -2,8 +2,12 @@
 
 @section('title', 'AmbatuGrow - Follow-Ups')
 
+@push('styles')
+    @vite(['resources/css/pages/crm-pages.css'])
+@endpush
+
 @section('content')
-<div class="space-y-6">
+<div class="crm-page space-y-6">
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Follow-Ups</h1>
@@ -11,20 +15,13 @@
         </div>
     </div>
 
-    <div class="space-y-2">
-        <label class="text-sm font-semibold text-gray-700">Search</label>
-        <div class="relative">
-            <input
-                type="text"
-                name="q"
-                value="{{ old('q', $q) }}"
-                id="followupSearch"
-                placeholder="Search customer name..."
-                class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
-            />
-            <i class="fas fa-search absolute right-4 top-3.5 text-gray-400 text-sm"></i>
-        </div>
-    </div>
+    <x-crm.search-field
+        id="followupSearch"
+        label="Search"
+        name="q"
+        :value="$q"
+        placeholder="Search customer name..."
+    />
 
     <div class="space-y-2">
         <label class="text-sm font-semibold text-gray-700">Filter by Status</label>
@@ -121,59 +118,11 @@
 </div>
 @endsection
 
-@push('styles')
-<style>
-    .status-select option {
-        background-color: #fff;
-        color: #1f2937;
-        font-weight: 600;
-    }
-</style>
-@endpush
-
 @push('scripts')
+<script src="{{ asset('js/crm-pages.js') }}?v={{ filemtime(public_path('js/crm-pages.js')) }}"></script>
 <script>
-    document.querySelectorAll('.status-select').forEach((select) => {
-        const classes = {
-            Pending: ['bg-yellow-100', 'text-yellow-800', 'border-yellow-200'],
-            Completed: ['bg-blue-100', 'text-blue-800', 'border-blue-200'],
-            Cancelled: ['bg-gray-100', 'text-gray-800', 'border-gray-200'],
-        };
-
-        const allClasses = Object.values(classes).flat();
-
-        select.addEventListener('change', () => {
-            select.classList.remove(...allClasses);
-            select.classList.add(...(classes[select.value] ?? classes.Pending));
-        });
-    });
-
-    // Name search — fires as you type (300 ms debounce)
-    const searchInput = document.getElementById('followupSearch');
     const currentStatus = @json($status);
-
-    if (searchInput) {
-        const applySearch = () => {
-            const value = searchInput.value.trim();
-            const url = new URL(window.location.href);
-            if (value) url.searchParams.set('q', value);
-            else url.searchParams.delete('q');
-            if (currentStatus) url.searchParams.set('status', currentStatus);
-            else url.searchParams.delete('status');
-            url.searchParams.set('page', '1');
-            window.location.href = url.toString();
-        };
-
-        let debounceTimer;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applySearch, 800);
-        });
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { clearTimeout(debounceTimer); applySearch(); }
-        });
-    }
+    window.applyQuerySearch('followupSearch', window.location.href, { status: currentStatus });
 </script>
 @endpush
 

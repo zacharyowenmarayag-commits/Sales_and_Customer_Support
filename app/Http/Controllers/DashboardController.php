@@ -52,14 +52,55 @@ class DashboardController extends Controller
         ];
 
         $customers = \App\Models\Customer::orderBy('first_name')->get();
+        $reps = \App\Models\SalesRepresentative::orderBy('first_name')->get();
 
         return view('ASSCM.index', [
             'cases'        => $cases,
             'counts'       => $counts,
             'customers'    => $customers,
+            'reps'         => $reps,
             'q'            => $q,
             'activeStatus' => $status,
         ]);
+    }
+
+    public function asscmView(string $caseId)
+    {
+        $case = \App\Models\SupportCase::with('customer')->where('case_id', $caseId)->firstOrFail();
+
+        return response()->json([
+            'case_id'     => $case->case_id,
+            'customer'    => $case->customer ? $case->customer->first_name . ' ' . $case->customer->last_name : '—',
+            'issue'       => $case->issue,
+            'priority'    => $case->priority,
+            'status'      => $case->status,
+            'assigned_to' => $case->assigned_to,
+            'created_at'  => $case->created_at ? $case->created_at->format('M d, Y h:i A') : '—',
+            'updated_at'  => $case->updated_at ? $case->updated_at->format('M d, Y h:i A') : '—',
+        ]);
+    }
+
+    public function asscmUpdate(Request $request, string $caseId)
+    {
+        $case = \App\Models\SupportCase::where('case_id', $caseId)->firstOrFail();
+
+        $validated = $request->validate([
+            'assigned_to' => ['nullable', 'string', 'max:255'],
+            'status'      => ['nullable', 'in:Open,Pending,Escalated,Resolved'],
+            'priority'    => ['nullable', 'in:Low,Medium,High'],
+            'issue'       => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $updateData = array_filter([
+            'assigned_to' => $validated['assigned_to'] ?? $case->assigned_to,
+            'status'      => $validated['status'] ?? $case->status,
+            'priority'    => $validated['priority'] ?? $case->priority,
+            'issue'       => $validated['issue'] ?? $case->issue,
+        ], function ($val) { return $val !== null; });
+
+        $case->update($updateData);
+
+        return redirect()->route('asscm')->with('success', 'Case ' . $caseId . ' updated successfully.');
     }
 
     public function asscmStore(Request $request)
@@ -682,6 +723,17 @@ class DashboardController extends Controller
             $ongoingDeals = $filterByValue($ongoingDeals);
         }
 
+        $ongoingStageClasses = [
+            'Proposal' => 'bg-[#dbe6ff] text-[#3355bb]',
+            'Negotiation' => 'bg-[#fff9c4] text-[#a67c00]',
+            'Qualification' => 'bg-[#fde2f0] text-[#b0447a]',
+            'On-Hold' => 'bg-[#fee2e2] text-[#dc2626]',
+        ];
+        $pastStageClasses = [
+            'Won' => 'bg-[#dcfce7] text-[#15803d]',
+            'Lost' => 'bg-[#e0f2fe] text-[#0369a1]',
+        ];
+
         return view('SPRF.deals', [
             'dateRange'           => $dateRange,
             'ongoingDeals'        => $ongoingDeals,
@@ -689,6 +741,8 @@ class DashboardController extends Controller
             'q'                   => $q,
             'availableDateRanges' => $availableDateRanges,
             'availableMonths'     => $availableMonths,
+            'ongoingStageClasses' => $ongoingStageClasses,
+            'pastStageClasses'    => $pastStageClasses,
         ]);
     }
 }
