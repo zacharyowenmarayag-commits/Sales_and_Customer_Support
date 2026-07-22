@@ -94,8 +94,8 @@
         }
     @endphp
     <div class="mt-auto pt-3 border-t border-gray-200">
-        <div class="flex items-center px-4 py-2.5 rounded-lg cursor-default transition hover:bg-gray-50" title="{{ Auth::user()->name }}">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style="border: 2px solid #{{ $avatarColor }}; color: #{{ $avatarColor }};">
+        <div class="flex items-center px-4 py-3 rounded-lg cursor-default transition hover:bg-gray-50" title="{{ Auth::user()->name }}">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="border: 2px solid #{{ $avatarColor }}; color: #{{ $avatarColor }};">
                 {{ $initials }}
             </div>
             <span class="sidebar-text ml-3 text-sm font-semibold text-gray-700 truncate">{{ Auth::user()->name }}</span>
