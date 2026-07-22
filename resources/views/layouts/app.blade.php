@@ -28,14 +28,17 @@
 
             @auth
                 <div class="flex items-center gap-3">
-                    <span class="text-white/80 text-sm font-medium hidden sm:inline">{{ Auth::user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="text-white/70 hover:text-white transition text-sm flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span class="hidden sm:inline">Logout</span>
-                        </button>
-                    </form>
+                    <!-- User Profile Trigger Button -->
+                    <button id="user-profile-trigger" onclick="toggleUserProfilePanel()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition duration-200 group">
+                        <!-- User Initials Avatar -->
+                        <div class="w-8 h-8 bg-white/20 group-hover:bg-white/30 rounded-full flex items-center justify-center transition duration-200">
+                            <span class="text-white text-xs font-bold">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', Auth::user()->name)[1] ?? '', 0, 1)) }}
+                            </span>
+                        </div>
+                        <span class="text-white/80 text-sm font-medium hidden sm:inline">{{ Auth::user()->name }}</span>
+                        <i class="fas fa-chevron-down text-white/60 text-xs ml-1"></i>
+                    </button>
                 </div>
             @endauth
         </header>
@@ -181,6 +184,10 @@
             </footer>
         </main>
     </div>
+
+    @auth
+        @include('partials.user-profile-panel')
+    @endauth
 
     @stack('scripts')
 </body>

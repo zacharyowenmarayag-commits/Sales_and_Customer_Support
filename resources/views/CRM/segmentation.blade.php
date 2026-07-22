@@ -677,13 +677,14 @@
             >
                 Cancel
             </button>
-            <a
-                href="{{ route('crm.purchaseHistory.export') }}"
+            <button
+                type="button"
                 id="confirmExportBtn"
-                class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition inline-flex items-center justify-center gap-1.5"
+                class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                onclick="document.getElementById('cancelExportModalBtn')?.click()"
             >
                 <i class="fas fa-check"></i> Done
-            </a>
+            </button>
         </div>
     </div>
 </div>

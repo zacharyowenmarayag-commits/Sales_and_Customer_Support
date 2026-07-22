@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CommunicationLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SprfController;
 
@@ -53,5 +54,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('SPRF')->name('sprf.')->group(function () {
         Route::get('/deals', [DashboardController::class, 'sprfDeals'])->name('deals');
     });
+
+    // Profile Routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 });
 

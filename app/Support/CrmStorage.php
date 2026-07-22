@@ -30,22 +30,31 @@ class CrmStorage
         ];
     }
 
+    private static ?array $_cachedState = null;
+
     private static function loadState(): array
     {
+        if (self::$_cachedState !== null) {
+            return self::$_cachedState;
+        }
+
         $path = self::filePath();
 
         if (!file_exists($path)) {
-            return self::defaultState();
+            self::$_cachedState = self::defaultState();
+            return self::$_cachedState;
         }
 
         $raw = file_get_contents($path);
         if ($raw === false || trim($raw) === '') {
-            return self::defaultState();
+            self::$_cachedState = self::defaultState();
+            return self::$_cachedState;
         }
 
         $decoded = json_decode($raw, true);
         if (!is_array($decoded)) {
-            return self::defaultState();
+            self::$_cachedState = self::defaultState();
+            return self::$_cachedState;
         }
 
         $state = array_merge(self::defaultState(), $decoded);
@@ -62,7 +71,8 @@ class CrmStorage
         $state['counters']['communication_log_id'] = (int) ($state['counters']['communication_log_id'] ?? 0);
         $state['counters']['follow_up_id'] = (int) ($state['counters']['follow_up_id'] ?? 0);
 
-        return $state;
+        self::$_cachedState = $state;
+        return self::$_cachedState;
     }
 
 
@@ -75,6 +85,9 @@ class CrmStorage
         }
 
         file_put_contents($path, json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        // Invalidate the in-memory cache so the next read picks up fresh data
+        self::$_cachedState = null;
     }
 
     private static function nextId(string $key): int

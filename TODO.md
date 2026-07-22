@@ -1,30 +1,18 @@
-# Login Page Implementation Plan
+# Fix Implementation Progress
 
-## Steps:
-1. ✅ Create `app/Http/Controllers/Auth/LoginController.php`
-2. ✅ Create `resources/views/auth/login.blade.php` (themed login page)
-3. ✅ Update `routes/web.php` (add auth routes, protect pages)
-4. ✅ Update `resources/views/layouts/app.blade.php` (add logout dropdown)
-5. ✅ Verify/clean up
+## Phase 1 - Vite Configuration ✅
+- [x] Add `crm-pages.css` to `vite.config.js` input array
 
----
+## Phase 2 - Purchase History Performance ✅
+- [x] Add static request caching to `CrmStorage::loadState()` — reduces file I/O from 6+ to 1 read per request
+- [x] Invalidate cache on `saveState()` to ensure data consistency
 
-## Implementation Complete
+## Phase 3 - Segmentation & CRM Dashboard Performance ✅
+- [x] Optimize `crmSegmentation()` — replaced `Customer::with('salesOrders')->get()` with aggregate LEFT JOIN query
+- [x] Optimize CRM Dashboard churn rate — same aggregate query approach instead of loading all customers into memory
 
-The following files were created/modified:
-
-| File | Action |
-|------|--------|
-| `app/Http/Controllers/Auth/LoginController.php` | **Created** — Custom login controller using `AuthenticatesUsers` trait |
-| `resources/views/auth/login.blade.php` | **Created** — Themed login page matching AmbatuGrow brand |
-| `routes/web.php` | **Modified** — Added `/login` (GET/POST), `/logout` (POST) routes; wrapped all existing routes in `auth` middleware |
-| `resources/views/layouts/app.blade.php` | **Modified** — Added user name + logout button in header for authenticated users |
-
-## Behavior
-- All existing pages (dashboard, SPRF, ASSCM, SOM, CRM) are now protected behind authentication
-- Unauthenticated users are redirected to `/login`
-- After successful login, users are redirected to `/` (dashboard)
-- Logout redirects to `/login`
-- No registration option — admin-only access
-- Dark green AmbatuGrow branding on the login page (matching the app theme)
+## Phase 4 - Minor Fixes ✅
+- [x] Fix invalid CSS `background: #white` in CRM dashboard
+- [x] Fix wrong export route in segmentation modal (changed `<a>` to `<button>` that properly closes the modal)
+- [x] Remove unused `crmPurchaseHistory()` method from DashboardController
 

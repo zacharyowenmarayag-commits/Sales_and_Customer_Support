@@ -433,14 +433,25 @@ class DashboardController extends Controller
         // Revenue (YTD)
         $revenueYTD = \App\Models\SalesOrder::sum('total_amount');
 
-        // Churn Rate
-        $customers = \App\Models\Customer::with('salesOrders')->get();
-        $totalCount = $customers->count();
+        // Churn Rate (use aggregate query instead of loading all customers)
+        $totalCount = \App\Models\Customer::count();
+        $cutoffDate = now()->subDays(30);
+
+        $customerStats = \App\Models\Customer::selectRaw('
+            customers.customer_id,
+            customers.created_at,
+            COALESCE(SUM(sales_orders.total_amount), 0) as total_spent,
+            COUNT(sales_orders.order_id) as order_count
+        ')
+            ->leftJoin('sales_orders', 'customers.customer_id', '=', 'sales_orders.customer_id')
+            ->groupBy('customers.customer_id', 'customers.created_at')
+            ->get();
+
         $inactiveCount = 0;
-        foreach ($customers as $customer) {
-            $totalSpent = (float)$customer->salesOrders->sum('total_amount');
-            $orderCount = $customer->salesOrders->count();
-            $isNew = $customer->created_at && $customer->created_at->greaterThanOrEqualTo(now()->subDays(30));
+        foreach ($customerStats as $stat) {
+            $totalSpent = (float) $stat->total_spent;
+            $orderCount = (int) $stat->order_count;
+            $isNew = $stat->created_at && \Carbon\Carbon::parse($stat->created_at)->greaterThanOrEqualTo($cutoffDate);
             if ($totalSpent < 30000 && $orderCount == 0 && !$isNew) {
                 $inactiveCount++;
             }
@@ -480,19 +491,6 @@ class DashboardController extends Controller
         return view('CRM.customer', [
             'customers' => $customers,
             'q' => $q,
-        ]);
-    }
-
-    public function crmPurchaseHistory(Request $request)
-    {
-        $q = $request->query('q');
-
-        $rowsList = CrmStorage::purchaseHistoryRows($q);
-        $rows = ArrayPaginator::make($rowsList, $request);
-
-        return view('CRM.purchase-history', [
-            'rows' => $rows,
-            'q'    => $q,
         ]);
     }
 
@@ -537,8 +535,20 @@ class DashboardController extends Controller
     public function crmSegmentation()
     {
         $segments = \App\Models\CustomerSegment::all();
-        $customers = \App\Models\Customer::with('salesOrders')->get();
-        $totalCount = $customers->count();
+
+        // Use aggregate queries instead of loading all customers into memory
+        $totalCount = \App\Models\Customer::count();
+
+        // Get customer-level aggregates from DB
+        $customerStats = \App\Models\Customer::selectRaw('
+            customers.customer_id,
+            customers.created_at,
+            COALESCE(SUM(sales_orders.total_amount), 0) as total_spent,
+            COUNT(sales_orders.order_id) as order_count
+        ')
+            ->leftJoin('sales_orders', 'customers.customer_id', '=', 'sales_orders.customer_id')
+            ->groupBy('customers.customer_id', 'customers.created_at')
+            ->get();
 
         $newCount = 0;
         $regularCount = 0;
@@ -550,11 +560,12 @@ class DashboardController extends Controller
         $vipRevenue = 0;
         $inactiveRevenue = 0;
 
-        foreach ($customers as $customer) {
-            $totalSpent = (float)$customer->salesOrders->sum('total_amount');
-            $orderCount = $customer->salesOrders->count();
+        $cutoffDate = now()->subDays(30);
 
-            $isNew = $customer->created_at && $customer->created_at->greaterThanOrEqualTo(now()->subDays(30));
+        foreach ($customerStats as $stat) {
+            $totalSpent = (float) $stat->total_spent;
+            $orderCount = (int) $stat->order_count;
+            $isNew = $stat->created_at && \Carbon\Carbon::parse($stat->created_at)->greaterThanOrEqualTo($cutoffDate);
 
             if ($totalSpent >= 30000) {
                 $vipCount++;
