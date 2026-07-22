@@ -25,6 +25,19 @@
                 <input type="text" id="globalHeaderSearch" value="{{ request('q') }}" placeholder="What are you looking for?" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 pr-10">
                 <i class="fas fa-search absolute right-3 top-3 text-white/60 text-sm"></i>
             </div>
+
+            @auth
+                <div class="flex items-center gap-3">
+                    <span class="text-white/80 text-sm font-medium hidden sm:inline">{{ Auth::user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-white/70 hover:text-white transition text-sm flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </form>
+                </div>
+            @endauth
         </header>
     </div>
 

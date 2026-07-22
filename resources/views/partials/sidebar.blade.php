@@ -82,13 +82,30 @@
             <span class="sidebar-text">Database Schema</span>
         </a>
     </div>
+
+    @auth
+    @php
+        $avatarColor = substr(md5(Auth::user()->email), 0, 6);
+        $nameParts = explode(' ', Auth::user()->name);
+        if (count($nameParts) >= 2) {
+            $initials = strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[1], 0, 1));
+        } else {
+            $initials = strtoupper(substr(Auth::user()->name, 0, 2));
+        }
+    @endphp
+    <div class="mt-auto pt-3 border-t border-gray-200">
+        <div class="flex items-center px-4 py-2.5 rounded-lg cursor-default transition hover:bg-gray-50" title="{{ Auth::user()->name }}">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style="border: 2px solid #{{ $avatarColor }}; color: #{{ $avatarColor }};">
+                {{ $initials }}
+            </div>
+            <span class="sidebar-text ml-3 text-sm font-semibold text-gray-700 truncate">{{ Auth::user()->name }}</span>
+        </div>
+    @endauth
 </aside>
 
-<!-- Mobile sidebar backdrop overlay -->
 <div id="sidebar-backdrop" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
 
 <style>
-    /* Responsive Styling for Tablet/Mobile vs Desktop */
     @media (max-width: 767px) {
         .sidebar-container {
             position: fixed !important;
@@ -96,7 +113,7 @@
             left: 0 !important;
             bottom: 0 !important;
             height: 100vh !important;
-            width: 18rem !important; /* w-72 */
+            width: 18rem !important;
             z-index: 50 !important;
             padding: 1rem !important;
             transform: translateX(-100%);
@@ -106,8 +123,6 @@
         .sidebar-container.mobile-open {
             transform: translateX(0);
         }
-        
-        /* Show all text in mobile/tablet open view */
         .sidebar-container .sidebar-text,
         .sidebar-container .sidebar-header,
         .sidebar-container .sidebar-chevron {
@@ -126,26 +141,24 @@
             display: inline-block !important;
         }
     }
-    
+
     @media (min-width: 768px) {
         .sidebar-container {
             position: sticky;
             top: 65px;
             height: calc(100vh - 65px);
-            width: 5rem; /* w-20 = 80px */
+            width: 5rem;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 1rem !important;
             box-shadow: none;
         }
         .sidebar-container:hover {
-            width: 18rem; /* w-72 = 288px */
+            width: 18rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
-
-        /* Keep links padding and alignment identical so selected icons never jump/shift */
         .sidebar-container .sidebar-link {
-            padding-left: 1rem !important; /* px-4 */
-            padding-right: 1rem !important; /* px-4 */
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
             justify-content: flex-start !important;
         }
         .sidebar-container:not(:hover) .sidebar-icon {
@@ -157,8 +170,6 @@
         .sidebar-container:not(:hover) .sidebar-chevron {
             display: none !important;
         }
-        
-        /* Hide elements when sidebar is collapsed */
         .sidebar-container .sidebar-text,
         .sidebar-container .sidebar-header,
         .sidebar-container .sidebar-chevron {
@@ -167,7 +178,6 @@
             white-space: nowrap;
             transition: opacity 0.2s ease, visibility 0.2s ease;
         }
-
         .sidebar-container:hover .sidebar-text,
         .sidebar-container:hover .sidebar-header,
         .sidebar-container:hover .sidebar-chevron {
@@ -177,7 +187,6 @@
         }
     }
 
-    /* Submenu accordion transition */
     .submenu-container {
         max-height: 0;
         overflow: hidden;
@@ -187,7 +196,6 @@
     .submenu-container.open {
         opacity: 1;
     }
-    /* Force collapse submenus when sidebar is collapsed (desktop) */
     @media (min-width: 768px) {
         .sidebar-container:not(:hover) .submenu-container {
             max-height: 0 !important;
@@ -199,7 +207,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Desktop submenus accordion behavior
         const parentItems = document.querySelectorAll('.sidebar-parent');
         parentItems.forEach(item => {
             item.addEventListener('click', function (e) {
@@ -208,7 +215,6 @@
                 const targetSubmenu = document.getElementById(targetId);
                 const chevron = this.querySelector('.sidebar-chevron');
 
-                // Close all other submenus
                 document.querySelectorAll('.submenu-container').forEach(sub => {
                     if (sub.id !== targetId) {
                         sub.classList.remove('open');
@@ -221,7 +227,6 @@
                     }
                 });
 
-                // Toggle current submenu
                 if (targetSubmenu.classList.contains('open')) {
                     targetSubmenu.classList.remove('open');
                     targetSubmenu.style.maxHeight = null;
@@ -234,7 +239,6 @@
             });
         });
 
-        // Ensure active submenu is open on load
         const activeSubLink = document.querySelector('.submenu-container .bg-green-700');
         if (activeSubLink) {
             const parentSubmenu = activeSubLink.closest('.submenu-container');
@@ -249,7 +253,6 @@
             }
         }
 
-        // Mobile/Tablet toggle script
         const toggleBtn = document.getElementById('mobile-sidebar-toggle');
         const sidebar = document.querySelector('.sidebar-container');
         const backdrop = document.getElementById('sidebar-backdrop');
