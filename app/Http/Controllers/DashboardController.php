@@ -304,6 +304,13 @@ class DashboardController extends Controller
             }
         }
 
+        $statusFilter = $request->query('status'); // Reads the ?status= from the URL
+        if ($statusFilter && in_array($statusFilter, ['Pending', 'Processed', 'Shipped', 'Delivered'])) {
+            $orders = array_filter($orders, function($order) use ($statusFilter) {
+                return $order['status'] === $statusFilter;
+            });
+        }
+
         return view('SOM.index', [
             'view'          => $request->query('view', 'dashboard'),
             'orders'        => $orders,
