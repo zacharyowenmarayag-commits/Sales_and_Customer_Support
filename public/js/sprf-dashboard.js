@@ -39,6 +39,11 @@
             positionPanel();
             panel.classList.remove('hidden');
             overlay.classList.remove('hidden');
+            // Allow browser layout paint before adding transition classes
+            setTimeout(() => {
+                panel.classList.add('show');
+                overlay.classList.add('show');
+            }, 10);
         } else {
             closeSprfDashFilter();
         }
@@ -47,8 +52,14 @@
     window.closeSprfDashFilter = function () {
         const panel = document.getElementById('sprf-dash-filter-panel');
         const overlay = document.getElementById('sprf-dash-filter-overlay');
-        if (panel) panel.classList.add('hidden');
-        if (overlay) overlay.classList.add('hidden');
+        if (panel) panel.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+        
+        // Wait for 200ms transition to finish before hiding elements from layout
+        setTimeout(() => {
+            if (panel && !panel.classList.contains('show')) panel.classList.add('hidden');
+            if (overlay && !overlay.classList.contains('show')) overlay.classList.add('hidden');
+        }, 200);
     };
 
     window.switchSprfFilterTab = function (tab) {
@@ -80,20 +91,20 @@
     }
 
     function applyDataFilters() {
-        const rep = document.getElementById('sprf-data-rep')?.value || '';
-        const region = document.getElementById('sprf-data-region')?.value || '';
-        const product = document.getElementById('sprf-data-product')?.value || '';
+        const rep = document.getElementById('sprf-data-rep')?.value?.toLowerCase() || '';
+        const region = document.getElementById('sprf-data-region')?.value?.toLowerCase() || '';
+        const product = document.getElementById('sprf-data-product')?.value?.toLowerCase() || '';
 
         document.querySelectorAll('tr[data-rep]').forEach(function (row) {
-            row.style.display = (!rep || row.dataset.rep === rep) ? '' : 'none';
+            row.style.display = (!rep || row.dataset.rep.includes(rep)) ? '' : 'none';
         });
 
         document.querySelectorAll('tr[data-region]').forEach(function (row) {
-            row.style.display = (!region || row.dataset.region === region) ? '' : 'none';
+            row.style.display = (!region || row.dataset.region.includes(region)) ? '' : 'none';
         });
 
         document.querySelectorAll('.sprf-product-item[data-product]').forEach(function (item) {
-            const match = !product || item.dataset.product === product;
+            const match = !product || item.dataset.product.includes(product);
             item.style.opacity = match ? '1' : '0.2';
             item.style.transition = 'opacity 0.2s';
         });
@@ -104,7 +115,10 @@
     function initDataFilters() {
         ['sprf-data-rep', 'sprf-data-region', 'sprf-data-product'].forEach(function (id) {
             const el = document.getElementById(id);
-            if (el) el.addEventListener('change', applyDataFilters);
+            if (el) {
+                el.addEventListener('change', applyDataFilters);
+                el.addEventListener('input', applyDataFilters);
+            }
         });
     }
 
@@ -152,11 +166,24 @@
     window.downloadCSV = function (tableId, filename) {
         const table = document.getElementById(tableId);
         if (!table) return;
-        const rows = Array.from(table.querySelectorAll('tr'));
+        
+        // Only export rows that are currently visible to the user
+        const rows = Array.from(table.querySelectorAll('tr')).filter(row => {
+            return row.style.display !== 'none' && !row.classList.contains('hidden');
+        });
+        
         const csv = rows.map(row => {
             const cols = Array.from(row.querySelectorAll('td, th'));
             return cols.map(cell => {
-                let data = cell.innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s+)/gm, ' ');
+                // Clone the cell to manipulate its HTML without affecting the live page
+                const clonedCell = cell.cloneNode(true);
+                
+                // Strip icons, buttons, SVG badges, and interactive indicators that pollute text content
+                clonedCell.querySelectorAll('i, button, svg, .pointer-events-none').forEach(el => el.remove());
+                
+                // Clean up spacing and double-quote containment
+                let data = clonedCell.textContent || clonedCell.innerText || '';
+                data = data.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s+)/gm, ' ').trim();
                 data = data.replace(/"/g, '""');
                 return '"' + data + '"';
             }).join(',');

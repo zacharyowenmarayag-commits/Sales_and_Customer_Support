@@ -552,3 +552,23 @@
     height: 34px;
     vertical-align: middle;
 }
+
+/* Smooth transitions for filter panel */
+#sprf-dash-filter-panel {
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    opacity: 0;
+    transform: scale(0.95);
+}
+#sprf-dash-filter-panel.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#sprf-dash-filter-overlay {
+    transition: opacity 0.2s linear !important;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+#sprf-dash-filter-overlay.show {
+    opacity: 1;
+}

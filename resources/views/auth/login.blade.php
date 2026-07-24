@@ -204,14 +204,25 @@
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        required
-                        autocomplete="current-password"
-                    >
+                    <div class="relative">
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                            style="padding-right: 40px;"
+                        >
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                            style="border: none; background: transparent; cursor: pointer; height: 100%;"
+                        >
+                            <i id="passwordIcon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="login-btn">
@@ -224,6 +235,27 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+            const passwordIcon = document.querySelector('#passwordIcon');
+
+            togglePassword.addEventListener('click', function () {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                if (type === 'password') {
+                    passwordIcon.classList.remove('fa-eye-slash');
+                    passwordIcon.classList.add('fa-eye');
+                } else {
+                    passwordIcon.classList.remove('fa-eye');
+                    passwordIcon.classList.add('fa-eye-slash');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
 

@@ -235,7 +235,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#eedcbe]">
             <span class="text-sm font-extrabold text-gray-900"><i class="fas fa-sliders-h text-xs text-green-700 mr-1.5"></i>Dashboard Filters</span>
-            <button onclick="closeSprfDashFilter()" class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition text-xs cursor-pointer">?</button>
+            <button onclick="closeSprfDashFilter()" class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition text-xs cursor-pointer">✕</button>
         </div>
 
         <!-- Tabs -->
@@ -248,7 +248,81 @@
                     class="flex-1 py-2.5 text-[11px] font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition cursor-pointer">
                 <i class="fas fa-sliders-h text-[10px] mr-1"></i>Data Filters
             </button>
-        </div>    </div>
+        </div>
+
+        <!-- Sections Tab Content -->
+        <div id="sprf-filter-tab-sections" class="p-5 flex flex-col gap-4">
+            <div class="flex flex-col gap-3">
+                @foreach ($sectionDefs as $sec)
+                    <label class="flex items-center gap-3 cursor-pointer text-xs font-semibold text-gray-700 hover:text-gray-900">
+                        <input type="checkbox" class="sprf-section-toggle rounded text-green-700 focus:ring-green-700" 
+                               data-section="{{ $sec['id'] }}" checked>
+                        <span><i class="fas {{ $sec['icon'] }} text-[11px] text-gray-400 mr-1.5 w-4 text-center"></i>{{ $sec['label'] }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Data Filters Tab Content -->
+        <div id="sprf-filter-tab-data" class="p-5 flex flex-col gap-4 hidden">
+            <!-- Rep Filter -->
+            <div class="flex flex-col gap-1.5 relative">
+                <label for="sprf-data-rep" class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Sales Representative</label>
+                <input 
+                    id="sprf-data-rep" 
+                    type="text" 
+                    list="sprf-rep-list" 
+                    placeholder="Search or select representative..." 
+                    class="w-full border border-[#eedcbe] rounded-lg px-3 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-green-700 bg-white"
+                >
+                <datalist id="sprf-rep-list">
+                    @foreach ($repSales as $rep)
+                        <option value="{{ $rep->rep_name }}"></option>
+                    @endforeach
+                </datalist>
+            </div>
+
+            <!-- Region Filter -->
+            <div class="flex flex-col gap-1.5 relative">
+                <label for="sprf-data-region" class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Region</label>
+                <input 
+                    id="sprf-data-region" 
+                    type="text" 
+                    list="sprf-region-list" 
+                    placeholder="Search or select region..." 
+                    class="w-full border border-[#eedcbe] rounded-lg px-3 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-green-700 bg-white"
+                >
+                <datalist id="sprf-region-list">
+                    @foreach ($regionSales as $region)
+                        <option value="{{ $region->region_name }}"></option>
+                    @endforeach
+                </datalist>
+            </div>
+
+            <!-- Product Filter -->
+            <div class="flex flex-col gap-1.5 relative">
+                <label for="sprf-data-product" class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product</label>
+                <input 
+                    id="sprf-data-product" 
+                    type="text" 
+                    list="sprf-product-list" 
+                    placeholder="Search or select product..." 
+                    class="w-full border border-[#eedcbe] rounded-lg px-3 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-green-700 bg-white"
+                >
+                <datalist id="sprf-product-list">
+                    @foreach ($productSales as $sale)
+                        <option value="{{ $sale->product_name }}"></option>
+                    @endforeach
+                </datalist>
+            </div>
+        </div>
+
+        <!-- Footer / Reset -->
+        <div class="flex items-center justify-between px-5 py-4 border-t border-[#eedcbe] bg-[#fffdf8]">
+            <button onclick="resetSprfDashFilters()" class="text-[11px] font-bold text-gray-500 hover:text-gray-800 transition">Reset Filters</button>
+            <button onclick="closeSprfDashFilter()" class="px-4 py-2 rounded-lg bg-green-800 text-[11px] font-bold text-white hover:bg-green-900 transition">Apply</button>
+        </div>
+    </div>
 </div>
 
 <!-- Calendar Popup Modal -->

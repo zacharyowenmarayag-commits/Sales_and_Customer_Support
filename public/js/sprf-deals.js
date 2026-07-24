@@ -6,19 +6,30 @@
     window.downloadCSV = function (tableId, filename) {
         const table = document.getElementById(tableId);
         if (!table) return;
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        for (let i = 0; i < rows.length; i++) {
-            const row = [], cols = rows[i].querySelectorAll('td, th');
-            for (let j = 0; j < cols.length; j++) {
-                let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s+)/gm, ' ');
+        
+        // Only export visible rows matching the user's filters
+        const rows = Array.from(table.querySelectorAll('tr')).filter(row => {
+            return row.style.display !== 'none' && !row.classList.contains('hidden');
+        });
+        
+        const csv = rows.map(row => {
+            const cols = Array.from(row.querySelectorAll('td, th'));
+            return cols.map(cell => {
+                // Clone the cell to manipulate its text without breaking the live web page
+                const clonedCell = cell.cloneNode(true);
+                
+                // Strip icons, buttons, SVG badges, and interactive indicators that pollute text content
+                clonedCell.querySelectorAll('i, button, svg, .pointer-events-none').forEach(el => el.remove());
+                
+                // Clean up spacing and escape double-quotes
+                let data = clonedCell.textContent || clonedCell.innerText || '';
+                data = data.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s+)/gm, ' ').trim();
                 data = data.replace(/"/g, '""');
-                row.push('"' + data + '"');
-            }
-            csv.push(row.join(','));
-        }
-        const csvString = csv.join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv' });
+                return '"' + data + '"';
+            }).join(',');
+        }).join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = filename;
