@@ -119,6 +119,12 @@ class SprfSeeder extends Seeder
         // April Past Deals
         Deal::create(['date_range' => $aprRange, 'name' => 'Soil Test Kit', 'customer' => 'Bio Lab', 'stage' => 'Won', 'value' => '₱120,000', 'expected_close' => 'Apr 18, 2026', 'owner' => 'Ash Ketchum', 'is_ongoing' => false]);
         Deal::create(['date_range' => $aprRange, 'name' => 'Tractor Lease', 'customer' => 'Agritech', 'stage' => 'Lost', 'value' => '₱350,000', 'expected_close' => 'Apr 5, 2026', 'owner' => 'Misty Reyes', 'is_ongoing' => false]);
+        Deal::create(['date_range' => $aprRange, 'name' => 'Pest Control Service', 'customer' => 'Orchard Growers', 'stage' => 'Won', 'value' => '₱85,000', 'expected_close' => 'Apr 20, 2026', 'owner' => 'Fred Rice', 'is_ongoing' => false]);
+        Deal::create(['date_range' => $aprRange, 'name' => 'Fertilizer Supply', 'customer' => 'Green Valley', 'stage' => 'Won', 'value' => '₱150,000', 'expected_close' => 'Apr 12, 2026', 'owner' => 'Lee Kah', 'is_ongoing' => false]);
+        Deal::create(['date_range' => $aprRange, 'name' => 'Irrigation Pipes', 'customer' => 'Riverdale Farms', 'stage' => 'Won', 'value' => '₱220,000', 'expected_close' => 'Apr 22, 2026', 'owner' => 'Dee Nuts', 'is_ongoing' => false]);
+        Deal::create(['date_range' => $aprRange, 'name' => 'Seed Starter Packs', 'customer' => 'Bloom Nursery', 'stage' => 'Lost', 'value' => '₱45,000', 'expected_close' => 'Apr 10, 2026', 'owner' => 'Ash Ketchum', 'is_ongoing' => false]);
+        Deal::create(['date_range' => $aprRange, 'name' => 'Compost Bin Setup', 'customer' => 'Urban Gardens', 'stage' => 'Won', 'value' => '₱65,000', 'expected_close' => 'Apr 25, 2026', 'owner' => 'Elsa Lgh', 'is_ongoing' => false]);
+        Deal::create(['date_range' => $aprRange, 'name' => 'Shade Netting Install', 'customer' => 'Sunny Hills', 'stage' => 'Won', 'value' => '₱180,000', 'expected_close' => 'Apr 29, 2026', 'owner' => 'Misty Reyes', 'is_ongoing' => false]);
 
         // April Sales Performances
         SalesPerformance::create(['date_range' => $aprRange, 'label' => 'APR 1', 'sales_amount' => 150000, 'orders_count' => 15]);

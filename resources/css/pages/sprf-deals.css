@@ -1,0 +1,116 @@
+.sprf-deals-page {
+    font-family: 'Inter', sans-serif;
+}
+
+.sprf-filter-panel {
+    top: 0;
+    right: 0;
+}
+
+.sprf-filter-panel-body {
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+}
+
+.sprf-calendar-panel {
+    z-index: 10;
+}
+
+/* === Calendar Popup Styles (shared with SPRF index) === */
+.sprf-deals-page .cal-grid-month {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px 0;
+    text-align: center;
+}
+.sprf-deals-page .cal-day-head {
+    font-size: 9px;
+    font-weight: 800;
+    color: #8a8a7a;
+    padding-bottom: 6px;
+}
+.sprf-deals-page .cal-day-wrap { position: relative; }
+.sprf-deals-page .cal-day-wrap.in-range { background: #dcfce7; }
+.sprf-deals-page .cal-day {
+    width: 28px; height: 28px;
+    margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-size: 11px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+    color: #374151;
+    user-select: none;
+}
+.sprf-deals-page .cal-day:hover { background: #f0fdf4; color: #166534; }
+.sprf-deals-page .cal-day.is-selected { background: #166534; color: #fff; font-weight: 800; box-shadow: 0 2px 6px rgba(22,101,52,0.25); }
+.sprf-deals-page .cal-day.in-range { background: #dcfce7; color: #166534; border-radius: 0; }
+.sprf-deals-page .cal-day.hover-end { outline: 2px solid #166534; outline-offset: 1px; }
+.sprf-deals-page .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sprf-deals-page .cal-nav-btn {
+    width: 28px; height: 28px;
+    border: none; background: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #6b7280;
+    cursor: pointer; transition: background 0.12s;
+}
+.sprf-deals-page .cal-nav-btn:hover { background: #f3f4f6; }
+.sprf-deals-page .cal-nav-title { font-size: 12px; font-weight: 800; color: #030712; }
+.sprf-deals-page .cal-quarter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.sprf-deals-page .cal-quarter-btn {
+    border: 1px solid #e3ddc9; border-radius: 12px;
+    padding: 12px 8px; font-size: 12px; font-weight: 800;
+    color: #374151; background: #fff; cursor: pointer;
+    transition: all 0.12s; text-align: center;
+}
+.sprf-deals-page .cal-quarter-btn:hover { background: #f0fdf4; border-color: #166534; color: #166534; }
+.sprf-deals-page .cal-quarter-btn.is-selected { background: #166534; border-color: #166534; color: #fff; }
+.sprf-deals-page .cal-quarter-sub { font-size: 10px; font-weight: 400; display: block; margin-top: 2px; }
+.sprf-deals-page .cal-year-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sprf-deals-page .cal-year-btn {
+    border: 1px solid #e3ddc9; border-radius: 12px;
+    padding: 12px 8px; font-size: 12px; font-weight: 800;
+    color: #374151; background: #fff; cursor: pointer;
+    transition: all 0.12s; text-align: center;
+}
+.sprf-deals-page .cal-year-btn:hover { background: #f0fdf4; border-color: #166534; color: #166534; }
+.sprf-deals-page .cal-year-btn.is-selected { background: #166534; border-color: #166534; color: #fff; }
+
+.sprf-deals-page table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    margin-top: 4px !important;
+}
+.sprf-deals-page table thead tr {
+    background-color: #fbf9f1 !important;
+}
+.sprf-deals-page table th {
+    padding: 10px 12px !important;
+    border-bottom: none !important;
+}
+.sprf-deals-page table thead tr th:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    padding-left: 12px !important;
+}
+.sprf-deals-page table thead tr th:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    padding-right: 12px !important;
+}
+.sprf-deals-page table td {
+    padding: 10px 12px !important;
+}
+.sprf-deals-page #ongoingDealsTable tr td,
+.sprf-deals-page #pastDealsTable tr td {
+    border-bottom: 1px solid #f5f2e9;
+}
+.sprf-deals-page #ongoingDealsTable tr:last-child td,
+.sprf-deals-page #pastDealsTable tr:last-child td {
+    border-bottom: none;
+}
+/* Orange line between header and first data row */
+.sprf-deals-page [data-table-id="ongoingDealsTable"] th,
+.sprf-deals-page [data-table-id="pastDealsTable"] th {
+    border-bottom: 1px solid #eedcbe !important;
+}
