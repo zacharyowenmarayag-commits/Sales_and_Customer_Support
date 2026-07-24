@@ -6,8 +6,8 @@
 <div class="space-y-6" id="mainContent">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Communication Logs</h1>
-            <p class="text-sm text-gray-500 mt-1">Track your recent customer conversations and notes.</p>
+            <h1 class="text-xl font-bold text-gray-900 tracking-tight">Communication Logs</h1>
+            <p class="text-xs text-gray-500 mt-1">Track your recent customer conversations and notes.</p>
         </div>
         <button type="button" id="openModalBtn" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
             <i class="fas fa-plus mr-2"></i> Add Log

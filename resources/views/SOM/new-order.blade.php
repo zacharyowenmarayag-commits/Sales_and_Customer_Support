@@ -20,7 +20,7 @@
 .breadcrumb span { color: #374151; font-weight: 700; }
 
 /* Page title */
-.page-title { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 24px; }
+.page-title { font-size: 20px; font-weight: 700; color: #111827; letter-spacing: -0.015em; margin-bottom: 20px; }
 
 /* Layout */
 .order-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }

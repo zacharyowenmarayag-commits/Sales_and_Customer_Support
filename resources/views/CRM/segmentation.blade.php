@@ -14,21 +14,22 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
-        gap: 20px;
+        gap: 15px;
     }
 
     .segmentation-header h1 {
-        font-size: 30px;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #111827;
+        letter-spacing: -0.015em;
     }
 
     .segmentation-header p {
         color: #6b7280;
-        margin-top: 4px;
-        font-size: 14px;
+        margin-top: 2px;
+        font-size: 0.75rem;
     }
 
     .header-right {

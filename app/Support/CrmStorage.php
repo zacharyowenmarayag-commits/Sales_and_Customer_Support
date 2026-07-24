@@ -281,6 +281,12 @@ class CrmStorage
         }, $filtered);
     }
 
+    public static function getFollowUps(): array
+    {
+        $state = self::loadState();
+        return $state['follow_ups'] ?? [];
+    }
+
     public static function createFollowUp(array $data): object
     {
         $id = self::nextId('follow_up_id');
@@ -300,6 +306,10 @@ class CrmStorage
             'customer' => (string) ($data['customer'] ?? ''),
             'due_date' => $dueIso,
             'status' => (string) ($data['status'] ?? 'Pending'),
+            'priority' => (string) ($data['priority'] ?? 'Medium'),
+            'description' => (string) ($data['description'] ?? ''),
+            'created_by' => (string) ($data['created_by'] ?? 'Admin'),
+            'created_at' => ($data['created_at'] ?? now())->toISOString(),
         ];
 
         $state['follow_ups'][] = $record;
@@ -310,7 +320,7 @@ class CrmStorage
         return $obj;
     }
 
-    public static function updateFollowUpStatus(int|string $followUpId, string $status): ?object
+    public static function updateFollowUp(int|string $followUpId, array $data): ?object
     {
         $state = self::loadState();
         $id = (int) $followUpId;
@@ -318,7 +328,30 @@ class CrmStorage
         $updated = null;
         foreach ($state['follow_ups'] as $idx => $fu) {
             if ((int) ($fu['id'] ?? 0) === $id) {
-                $state['follow_ups'][$idx]['status'] = $status;
+                if (isset($data['task'])) {
+                    $state['follow_ups'][$idx]['task'] = (string) $data['task'];
+                }
+                if (isset($data['customer'])) {
+                    $state['follow_ups'][$idx]['customer'] = (string) $data['customer'];
+                }
+                if (isset($data['due_date'])) {
+                    $due = $data['due_date'];
+                    if ($due instanceof Carbon) {
+                        $dueIso = $due->toISOString();
+                    } else {
+                        $dueIso = Carbon::parse((string) $due)->toISOString();
+                    }
+                    $state['follow_ups'][$idx]['due_date'] = $dueIso;
+                }
+                if (isset($data['priority'])) {
+                    $state['follow_ups'][$idx]['priority'] = (string) $data['priority'];
+                }
+                if (isset($data['status'])) {
+                    $state['follow_ups'][$idx]['status'] = (string) $data['status'];
+                }
+                if (isset($data['description'])) {
+                    $state['follow_ups'][$idx]['description'] = (string) $data['description'];
+                }
                 $updated = $state['follow_ups'][$idx];
                 break;
             }
@@ -333,6 +366,11 @@ class CrmStorage
         $obj = (object) $updated;
         $obj->due_date = !empty($updated['due_date']) ? Carbon::parse($updated['due_date']) : null;
         return $obj;
+    }
+
+    public static function updateFollowUpStatus(int|string $followUpId, string $status): ?object
+    {
+        return self::updateFollowUp($followUpId, ['status' => $status]);
     }
 
     public static function communicationLogsCount(): int

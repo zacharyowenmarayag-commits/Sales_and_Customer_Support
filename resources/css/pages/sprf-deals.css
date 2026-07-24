@@ -82,7 +82,7 @@
     margin-top: 4px !important;
 }
 .sprf-deals-page table thead tr {
-    background-color: #fbf9f1 !important;
+    background-color: #f0f9f1 !important;
 }
 .sprf-deals-page table th {
     padding: 10px 12px !important;
@@ -103,14 +103,14 @@
 }
 .sprf-deals-page #ongoingDealsTable tr td,
 .sprf-deals-page #pastDealsTable tr td {
-    border-bottom: 1px solid #f5f2e9;
+    border-bottom: 1px solid #e2f3e4;
 }
 .sprf-deals-page #ongoingDealsTable tr:last-child td,
 .sprf-deals-page #pastDealsTable tr:last-child td {
     border-bottom: none;
 }
-/* Orange line between header and first data row */
+/* Soft green line between header and first data row */
 .sprf-deals-page [data-table-id="ongoingDealsTable"] th,
 .sprf-deals-page [data-table-id="pastDealsTable"] th {
-    border-bottom: 1px solid #eedcbe !important;
+    border-bottom: 1px solid #bbf7d0 !important;
 }

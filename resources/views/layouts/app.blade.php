@@ -9,35 +9,152 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        html {
+            font-size: 14px !important;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
     @stack('styles')
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col" style="font-family: 'Inter', sans-serif;">
     <div class="sticky top-0 z-50 shadow-sm">
-        <header class="bg-green-700 border-b border-green-800 px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
+        <header class="bg-green-700 border-b border-green-800 px-6 py-2.5 flex justify-between items-center">
+            <div class="flex items-center space-x-2.5">
                 <button id="mobile-sidebar-toggle" class="md:hidden text-white/80 hover:text-white focus:outline-none p-1 mr-1">
-                    <i class="fas fa-bars text-xl"></i>
+                    <i class="fas fa-bars text-lg"></i>
                 </button>
-                <img src="{{ asset('images/logo.png') }}" alt="AMBATUGROW Logo" class="w-9 h-9 object-contain bg-white rounded-full p-0.5">
-                <span class="text-xl font-bold tracking-wider text-white">AMBATUGROW</span>
+                <img src="{{ asset('images/logo.png') }}" alt="AMBATUGROW Logo" class="w-7 h-7 object-contain bg-white rounded-full p-0.5">
+                <span class="text-base font-bold tracking-wider text-white">AMBATUGROW</span>
             </div>
-            <div class="relative w-80">
-                <input type="text" id="globalHeaderSearch" value="{{ request('q') }}" placeholder="What are you looking for?" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 pr-10">
-                <i class="fas fa-search absolute right-3 top-3 text-white/60 text-sm"></i>
+            <div class="relative w-72">
+                <input type="text" id="globalHeaderSearch" value="{{ request('q') }}" placeholder="What are you looking for?" class="w-full bg-white/10 border border-white/20 rounded-lg px-3.5 py-1.5 text-xs text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 pr-9">
+                <i class="fas fa-search absolute right-3 top-2.5 text-white/60 text-xs"></i>
             </div>
 
             @auth
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2.5">
+
+                    <!-- Notification Bell Dropdown -->
+                    @php
+                        $settingsFile = storage_path('app/system_settings.json');
+                        $settings = file_exists($settingsFile) ? (json_decode(file_get_contents($settingsFile), true) ?? []) : [];
+                        $notifPrefs = $settings['notifications'] ?? [
+                            'crm_reminders' => true,
+                            'sprf_updates' => true,
+                            'asscm_escalations' => true,
+                        ];
+
+                        $notifications = [];
+                        try {
+                            if (!empty($notifPrefs['crm_reminders'])) {
+                                $followUps = \App\Support\CrmStorage::getFollowUps();
+                                foreach ($followUps as $f) {
+                                    $fArr = (array) $f;
+                                    if (($fArr['status'] ?? 'Pending') !== 'Completed') {
+                                        $notifications[] = [
+                                            'icon' => 'fa-calendar-check text-green-600',
+                                            'title' => 'CRM Follow-Up Due',
+                                            'message' => ($fArr['task'] ?? 'Task') . ' (' . ($fArr['customer'] ?? 'Customer') . ')',
+                                            'time' => 'Due Today',
+                                            'link' => route('crm.dashboard'),
+                                        ];
+                                        if (count($notifications) >= 2) break;
+                                    }
+                                }
+                            }
+
+                            if (!empty($notifPrefs['asscm_escalations'])) {
+                                $escalated = \App\Models\SupportCase::where('status', 'Escalated')->first();
+                                if ($escalated) {
+                                    $notifications[] = [
+                                        'icon' => 'fa-triangle-exclamation text-amber-500',
+                                        'title' => 'ASSCM Case Escalated',
+                                        'message' => 'Issue: ' . $escalated->issue,
+                                        'time' => 'Action Required',
+                                        'link' => route('asscm'),
+                                    ];
+                                }
+                            }
+
+                            if (!empty($notifPrefs['sprf_updates'])) {
+                                $notifications[] = [
+                                    'icon' => 'fa-chart-bar text-blue-600',
+                                    'title' => 'SPRF Procurement Sync',
+                                    'message' => '20 pending matching records awaiting verification.',
+                                    'time' => 'Active View',
+                                    'link' => route('sprf'),
+                                ];
+                            }
+                        } catch (\Throwable $e) {
+                            // Silence error fallback
+                        }
+                    @endphp
+
+                    <div class="relative">
+                        <button id="notif-dropdown-btn" onclick="toggleNotifDropdown()" class="relative p-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition flex items-center justify-center">
+                            <i class="fas fa-bell text-xs"></i>
+                            @if(count($notifications) > 0)
+                                <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-extrabold rounded-full flex items-center justify-center border-2 border-green-700">
+                                    {{ count($notifications) }}
+                                </span>
+                            @endif
+                        </button>
+
+                        <!-- Notification Dropdown Panel -->
+                        <div id="notif-dropdown-panel" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-2 hidden z-50 text-gray-800 text-xs">
+                            <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                                <span class="font-bold text-gray-900 flex items-center gap-1.5">
+                                    <i class="fas fa-bell text-green-700"></i>
+                                    Notifications
+                                </span>
+                                <a href="{{ route('settings') }}" class="text-[11px] text-green-700 hover:underline">Notification Settings</a>
+                            </div>
+                            <div class="divide-y divide-gray-100 max-h-72 overflow-y-auto">
+                                @forelse($notifications as $n)
+                                    <a href="{{ $n['link'] }}" class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition">
+                                        <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                                            <i class="fas {{ $n['icon'] }}"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-semibold text-gray-900 text-xs truncate">{{ $n['title'] }}</p>
+                                            <p class="text-[11px] text-gray-600 truncate mt-0.5">{{ $n['message'] }}</p>
+                                            <p class="text-[10px] text-gray-400 mt-1">{{ $n['time'] }}</p>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="px-4 py-6 text-center text-gray-400 text-xs">
+                                        <i class="fas fa-bell-slash text-base mb-1 block text-gray-300"></i>
+                                        No active notifications based on your settings preferences.
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- User Profile Trigger Button -->
-                    <button id="user-profile-trigger" onclick="toggleUserProfilePanel()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition duration-200 group">
+                    <button id="user-profile-trigger" onclick="toggleUserProfilePanel()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-lg transition duration-200 group">
                         <!-- User Initials Avatar -->
-                        <div class="w-8 h-8 bg-white/20 group-hover:bg-white/30 rounded-full flex items-center justify-center transition duration-200">
-                            <span class="text-white text-xs font-bold">
+                        <div class="w-7 h-7 bg-white/20 group-hover:bg-white/30 rounded-full flex items-center justify-center transition duration-200">
+                            <span class="text-white text-[11px] font-bold">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', Auth::user()->name)[1] ?? '', 0, 1)) }}
                             </span>
                         </div>
-                        <span class="text-white/80 text-sm font-medium hidden sm:inline">{{ Auth::user()->name }}</span>
-                        <i class="fas fa-chevron-down text-white/60 text-xs ml-1"></i>
+                        <span class="text-white/80 text-xs font-medium hidden sm:inline">{{ Auth::user()->name }}</span>
+                        <i class="fas fa-chevron-down text-white/60 text-[10px] ml-0.5"></i>
                     </button>
                 </div>
             @endauth
@@ -45,6 +162,21 @@
     </div>
 
     <script>
+        function toggleNotifDropdown() {
+            const panel = document.getElementById('notif-dropdown-panel');
+            if (panel) {
+                panel.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = document.getElementById('notif-dropdown-btn');
+            const panel = document.getElementById('notif-dropdown-panel');
+            if (btn && panel && !btn.contains(e.target) && !panel.contains(e.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             // Restore scroll position and input focus if the path matches the last saved path
             const savedPath = localStorage.getItem('scrollPathname');
@@ -148,40 +280,8 @@
     <div class="flex flex-1">
         @include('partials.sidebar')
 
-        <main class="flex-1 min-w-0 flex flex-col justify-between">
-            <div class="flex-1 pl-6 pr-8 pt-6 pb-12 min-h-[calc(100vh-65px)]">
-                @yield('content')
-            </div>
-
-            <footer class="bg-green-700 text-white">
-                <div class="max-w-7xl mx-auto px-8 py-12 grid gap-8 md:grid-cols-3">
-                    <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-green-100 mb-4">Support</h3>
-                        <p class="text-sm text-green-200">BATUMBUKAL</p>
-                        <p class="text-sm text-green-200 mt-1">AMBATUGROW@gmail.com</p>
-                        <p class="text-sm text-green-200 mt-1">+88015-88888-9999</p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-green-100 mb-4">Account</h3>
-                        <ul class="space-y-2 text-sm text-green-200">
-                            <li>My Account</li>
-                            <li>Login / Register</li>
-                            <li>Cart</li>
-                            <li>Wishlist</li>
-                            <li>Shop</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-green-100 mb-4">Quick Link</h3>
-                        <ul class="space-y-2 text-sm text-green-200">
-                            <li>Privacy Policy</li>
-                            <li>Terms Of Use</li>
-                            <li>FAQ</li>
-                            <li>Contact</li>
-                        </ul>
-                    </div>
-                </div>
-            </footer>
+        <main class="flex-1 min-w-0 md:ml-[4.75rem] p-5">
+            @yield('content')
         </main>
     </div>
 

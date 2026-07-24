@@ -1,4 +1,4 @@
-@if ($paginator->hasPages())
+@if (is_object($paginator) && method_exists($paginator, 'hasPages') && $paginator->hasPages())
     <div class="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p class="text-sm text-gray-500">
             Showing {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} of {{ $paginator->total() }}

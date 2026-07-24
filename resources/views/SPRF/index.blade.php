@@ -11,8 +11,8 @@
     <!-- Header & Toolbar Row -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Sales Performance Reporting and Forecasting</h1>
-            <p class="text-sm text-gray-500 mt-1">Provides data-driven insights into sales activities, team performance, and future sales trends.</p>
+            <h1 class="text-xl font-bold text-gray-900 tracking-tight">Sales Performance Reporting and Forecasting</h1>
+            <p class="text-xs text-gray-500 mt-1">Provides data-driven insights into sales activities, team performance, and future sales trends.</p>
         </div>
         <div class="sprf-toolbar mb-0 flex-shrink-0">
             <!-- Calendar icon button (Functional, opens date range popup) -->
@@ -93,10 +93,10 @@
     </div>
 
     <!-- Details Row -->
-    <div id="sprf-section-details" class="sprf-three-row">
-        <x-sprf.panel class="flex flex-col h-full">
-            <h3 class="m-0 mb-4">Sales by Region</h3>
-            <div class="mx-[-24px] bg-[#faf8f2] border-y border-[#eedcbe] px-6 py-2 flex-1 flex items-center">
+    <div id="sprf-section-details" class="sprf-three-row" style="align-items: stretch;">
+        <x-sprf.panel class="flex flex-col" style="height:100%;">
+            <h3 class="m-0 mb-4 text-base font-bold text-gray-900">Sales by Region</h3>
+            <div class="mx-[-24px] bg-[#f0f9f1] border-y border-green-200 px-6 py-3" style="flex:1; display:flex; flex-direction:column; justify-content:flex-start;">
                 <table class="sprf-table" id="regionTable">
                     <thead>
                         <tr data-table-id="regionTable">
@@ -120,12 +120,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4 h-4"></div>
         </x-sprf.panel>
 
-        <x-sprf.panel class="flex flex-col h-full">
-            <h3 class="m-0 mb-4">Top Sales Representatives</h3>
-            <div class="mx-[-24px] bg-[#faf8f2] border-y border-[#eedcbe] px-6 py-2 flex-1 flex items-center">
+        <x-sprf.panel class="flex flex-col" style="height:100%;">
+            <h3 class="m-0 mb-4 text-base font-bold text-gray-900">Top Sales Representatives</h3>
+            <div class="mx-[-24px] bg-[#f0f9f1] border-y border-green-200 px-6 py-3" style="flex:1; display:flex; flex-direction:column; justify-content:flex-start;">
                 <table class="sprf-table" id="repTable">
                     <thead>
                         <tr data-table-id="repTable">
@@ -154,33 +153,32 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4 h-4"></div>
         </x-sprf.panel>
 
-        <x-sprf.panel class="flex flex-col h-full">
-            <h3 class="m-0 mb-4">Forecast vs Target</h3>
-            <div class="mx-[-24px] bg-[#faf8f2] border-y border-[#eedcbe] px-6 py-2 flex-1 flex items-center">
-                <div class="relative w-full h-[180px]">
-                    <canvas id="forecastChart"></canvas>
+        <x-sprf.panel class="flex flex-col" style="height:100%;">
+            <h3 class="m-0 mb-4 text-base font-bold text-gray-900">Forecast vs Target</h3>
+            <div class="mx-[-24px] bg-[#f0f9f1] border-y border-green-200 px-6 py-3" style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="relative w-full" style="flex:1;">
+                    <canvas id="forecastChart" style="width:100%; height:100%;"></canvas>
                 </div>
-            </div>
-            <div class="flex justify-center items-center gap-4 mt-4 text-[10px] font-bold text-gray-500 h-4">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#555555]"></span> Target</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#e08a3a]"></span> Actual</span>
+                <div class="flex justify-center items-center gap-4 mt-3 text-[10px] font-bold text-gray-500">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#555555]"></span> Target</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#e08a3a]"></span> Actual</span>
+                </div>
             </div>
         </x-sprf.panel>
     </div>
 
     <!-- Recent Deals -->
     <div id="sprf-section-deals" class="sprf-panel">
-        <div class="flex justify-between items-center py-2 mb-2">
-            <h3 class="m-0">Recent Deals</h3>
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="m-0 text-base font-bold text-gray-900">Recent Deals</h3>
             <span class="text-xs text-gray-500 font-bold select-none cursor-pointer hover:underline" onclick="downloadCSV('dealsTable', 'SPRF_Recent_Deals.csv')">Export CSV</span>
         </div>
-        <div class="mx-[-24px] bg-[#faf8f2] border-y border-[#eedcbe]/45 px-6 py-2">
+        <div class="mx-[-24px] bg-[#f0f9f1] border-y border-green-200 px-6 py-2">
             <table class="sprf-table w-full" id="dealsTable">
                 <thead>
-                    <tr class="border-b border-[#eedcbe]" data-table-id="dealsTable">
+                    <tr class="border-b border-green-200" data-table-id="dealsTable">
                         <th class="pb-3 pl-0 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('dealsTable', 0, 'string', this)">
                             <span class="flex items-center gap-1">Deal Name <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                         </th>

@@ -64,7 +64,9 @@
         :stage-classes="$ongoingStageClasses"
         empty-message="No ongoing deals found for this date range."
         :q="$q"
-    />
+    >
+        <span class="text-xs text-gray-500 font-bold select-none cursor-pointer hover:underline" onclick="downloadCSV('ongoingDealsTable', 'SPRF_Ongoing_Deals.csv')">Export CSV</span>
+    </x-sprf.deals-card>
 
     <x-sprf.deals-card
         title="Past Deals"
@@ -82,9 +84,9 @@
 <!-- ==================== SPRF Filter Popover ==================== -->
 <div id="sprf-filter-overlay" class="fixed inset-0 z-40 hidden" onclick="closeSprfFilter()"></div>
 <div id="sprf-filter-panel" class="sprf-filter-panel fixed z-50 hidden">
-    <div class="sprf-filter-panel-body w-85 max-w-[95vw] bg-[#fffefb] border border-[#eedcbe] rounded-[20px] shadow-2xl overflow-hidden mt-2 mr-2">
+    <div class="sprf-filter-panel-body w-85 max-w-[95vw] bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden mt-2 mr-2">
         <!-- Header -->
-        <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#eedcbe]">
+        <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-200">
             <span class="text-sm font-extrabold text-gray-900"><i class="fas fa-filter text-xs text-green-700 mr-1.5"></i>Filter Deals</span>
             <button onclick="closeSprfFilter()" class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition text-xs cursor-pointer">✕</button>
         </div>

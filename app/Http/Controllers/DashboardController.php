@@ -293,7 +293,7 @@ class DashboardController extends Controller
             $query->where('status', $status);
         }
 
-        $orders = $query->get();
+        $orders = $query->paginate(10)->withQueryString();
 
         // Counts always reflect ALL orders (ignoring current filter)
         $allOrders = \App\Models\SalesOrder::all();
@@ -302,13 +302,6 @@ class DashboardController extends Controller
             if (isset($counts[$order->status])) {
                 $counts[$order->status]++;
             }
-        }
-
-        $statusFilter = $request->query('status'); // Reads the ?status= from the URL
-        if ($statusFilter && in_array($statusFilter, ['Pending', 'Processed', 'Shipped', 'Delivered'])) {
-            $orders = array_filter($orders, function($order) use ($statusFilter) {
-                return $order['status'] === $statusFilter;
-            });
         }
 
         return view('SOM.index', [
@@ -762,6 +755,59 @@ class DashboardController extends Controller
             'ongoingStageClasses' => $ongoingStageClasses,
             'pastStageClasses'    => $pastStageClasses,
         ]);
+    }
+
+    public function settings()
+    {
+        $settingsFile = storage_path('app/system_settings.json');
+        $settings = file_exists($settingsFile) ? (json_decode(file_get_contents($settingsFile), true) ?? []) : [];
+        $preferences = $settings['preferences'] ?? [
+            'app_name' => 'AmbatuGrow ERP',
+            'timezone' => 'Asia/Manila (PST)',
+            'date_format' => 'M j, Y, g:i A',
+        ];
+        $notifications = $settings['notifications'] ?? [
+            'crm_reminders' => true,
+            'sprf_updates' => true,
+            'asscm_escalations' => true,
+        ];
+
+        return view('settings.index', compact('preferences', 'notifications'));
+    }
+
+    public function updatePreferences(Request $request)
+    {
+        $validated = $request->validate([
+            'app_name' => 'required|string|max:255',
+            'timezone' => 'required|string|max:255',
+            'date_format' => 'required|string|max:255',
+        ]);
+
+        $settingsFile = storage_path('app/system_settings.json');
+        $settings = file_exists($settingsFile) ? (json_decode(file_get_contents($settingsFile), true) ?? []) : [];
+        $settings['preferences'] = $validated;
+        file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
+
+        return back()->with('success', 'General preferences updated successfully!');
+    }
+
+    public function updateNotifications(Request $request)
+    {
+        $settingsFile = storage_path('app/system_settings.json');
+        $settings = file_exists($settingsFile) ? (json_decode(file_get_contents($settingsFile), true) ?? []) : [];
+        $settings['notifications'] = [
+            'crm_reminders' => $request->has('crm_reminders'),
+            'sprf_updates' => $request->has('sprf_updates'),
+            'asscm_escalations' => $request->has('asscm_escalations'),
+        ];
+        file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
+
+        return back()->with('success', 'Notification preferences updated successfully!');
+    }
+
+    public function support()
+    {
+        return view('support.index');
     }
 }
 

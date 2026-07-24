@@ -10,8 +10,8 @@
 <div class="crm-page space-y-6">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Purchase History</h1>
-            <p class="text-sm text-gray-500 mt-1">View customer purchase records and order history.</p>
+            <h1 class="text-xl font-bold text-gray-900 tracking-tight">Purchase History</h1>
+            <p class="text-xs text-gray-500 mt-1">View customer purchase records and order history.</p>
         </div>
         <a
             href="{{ route('crm.purchaseHistory.export', array_filter(['q' => $q])) }}"

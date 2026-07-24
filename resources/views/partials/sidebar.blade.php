@@ -1,107 +1,93 @@
-<aside class="sidebar-container bg-white border-r border-gray-200 p-4 space-y-4 flex flex-col flex-shrink-0 overflow-y-auto overflow-x-hidden">
+<aside class="sidebar-container bg-white border-r border-gray-200 py-3 flex flex-col justify-between flex-shrink-0 overflow-y-auto overflow-x-hidden">
 
-
-    <div class="space-y-2">
+    <div class="space-y-1">
         <!-- Dashboard Overview -->
-        <a href="{{ route('dashboard') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium">
-            <i class="fas fa-gauge-high w-5 flex-shrink-0 sidebar-icon mr-3"></i>
+        <a href="{{ route('dashboard') }}" class="sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('dashboard') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition">
+            <i class="fas fa-gauge-high sidebar-icon"></i>
             <span class="sidebar-text">Dashboard</span>
         </a>
 
         <!-- ASSCM -->
-        <a href="{{ route('asscm') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('asscm') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium">
-            <i class="fas fa-headset w-5 flex-shrink-0 sidebar-icon mr-3"></i>
+        <a href="{{ route('asscm') }}" class="sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('asscm') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition">
+            <i class="fas fa-headset sidebar-icon"></i>
             <span class="sidebar-text">ASSCM</span>
         </a>
 
         <!-- SPRF Parent -->
-        <a href="#" class="sidebar-parent sidebar-link flex items-center justify-between px-4 py-3 rounded-lg {{ request()->routeIs('sprf') || request()->routeIs('sprf.*') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium" data-target="sprf-submenu">
-            <div class="flex items-center">
-                <i class="fas fa-chart-bar w-5 flex-shrink-0 sidebar-icon mr-3"></i>
-                <span class="sidebar-text">SPRF</span>
-            </div>
+        <a href="#" class="sidebar-parent sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('sprf') || request()->routeIs('sprf.*') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition" data-target="sprf-submenu">
+            <i class="fas fa-chart-bar sidebar-icon"></i>
+            <span class="sidebar-text">SPRF</span>
             <i class="fas fa-chevron-right sidebar-chevron transition-transform duration-200 text-xs ml-auto"></i>
         </a>
         <!-- SPRF Submenu -->
-        <div id="sprf-submenu" class="submenu-container space-y-1 pl-4">
-            <a href="{{ route('sprf') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('sprf') && !request()->routeIs('sprf.deals') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-chart-line w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+        <div id="sprf-submenu" class="submenu-container space-y-1 bg-gray-50/80 py-1">
+            <a href="{{ route('sprf') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('sprf') && !request()->routeIs('sprf.deals') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-chart-line sidebar-icon"></i>
                 <span class="sidebar-text">Dashboard</span>
             </a>
-            <a href="{{ route('sprf.deals') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('sprf.deals') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-tags w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+            <a href="{{ route('sprf.deals') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('sprf.deals') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-tags sidebar-icon"></i>
                 <span class="sidebar-text">Deals</span>
             </a>
         </div>
 
         <!-- SOM -->
-        <a href="{{ route('som') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('som') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium">
-            <i class="fas fa-file-invoice w-5 flex-shrink-0 sidebar-icon mr-3"></i>
+        <a href="{{ route('som') }}" class="sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('som') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition">
+            <i class="fas fa-file-invoice sidebar-icon"></i>
             <span class="sidebar-text">SOM</span>
         </a>
 
         <!-- CRM Parent -->
-        <a href="#" class="sidebar-parent sidebar-link flex items-center justify-between px-4 py-3 rounded-lg {{ request()->routeIs('crm.*') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium" data-target="crm-submenu">
-            <div class="flex items-center">
-                <i class="fas fa-handshake w-5 flex-shrink-0 sidebar-icon mr-3"></i>
-                <span class="sidebar-text">CRM</span>
-            </div>
+        <a href="#" class="sidebar-parent sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('crm.*') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition" data-target="crm-submenu">
+            <i class="fas fa-handshake sidebar-icon"></i>
+            <span class="sidebar-text">CRM</span>
             <i class="fas fa-chevron-right sidebar-chevron transition-transform duration-200 text-xs ml-auto"></i>
         </a>
         <!-- CRM Submenu -->
-        <div id="crm-submenu" class="submenu-container space-y-1 pl-4">
-            <a href="{{ route('crm.dashboard') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('crm.dashboard') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-tachometer-alt w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+        <div id="crm-submenu" class="submenu-container space-y-1 bg-gray-50/80 py-1">
+            <a href="{{ route('crm.dashboard') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('crm.dashboard') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-tachometer-alt sidebar-icon"></i>
                 <span class="sidebar-text">CRM Dashboard</span>
             </a>
-            <a href="{{ route('crm.customers') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('crm.customers') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-users w-4 flex-shrink-0 sidebar-icon mr-3"></i>
-                <span class="sidebar-text">Customers</span>
-            </a>
-            <a href="{{ route('crm.purchaseHistory') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('crm.purchaseHistory') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-receipt w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+            <a href="{{ route('crm.purchaseHistory') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('crm.purchaseHistory') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-receipt sidebar-icon"></i>
                 <span class="sidebar-text">Purchase History</span>
             </a>
-            <a href="{{ route('crm.comlog') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('crm.comlog') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-comments w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+            <a href="{{ route('crm.comlog') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('crm.comlog') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-comments sidebar-icon"></i>
                 <span class="sidebar-text">Communication Logs</span>
             </a>
-            <a href="{{ route('crm.followup') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('crm.followup') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-calendar-check w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+            <a href="{{ route('crm.followup') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('crm.followup') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-calendar-check sidebar-icon"></i>
                 <span class="sidebar-text">Follow-Ups</span>
             </a>
-            <a href="{{ route('crm.segmentation') }}" class="sidebar-link flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('crm.segmentation') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium text-sm">
-                <i class="fas fa-chart-pie w-4 flex-shrink-0 sidebar-icon mr-3"></i>
+            <a href="{{ route('crm.segmentation') }}" class="sidebar-link flex items-center px-4 py-2 {{ request()->routeIs('crm.segmentation') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold' : 'text-gray-600 hover:bg-gray-100' }} transition text-xs">
+                <i class="fas fa-chart-pie sidebar-icon"></i>
                 <span class="sidebar-text">Segmentation</span>
             </a>
         </div>
 
         <!-- Database Schema (ERD) -->
-        <a href="{{ route('db-schema') }}" class="sidebar-link flex items-center px-4 py-3 rounded-lg {{ request()->routeIs('db-schema') ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }} transition font-medium">
-            <i class="fas fa-database w-5 flex-shrink-0 sidebar-icon mr-3"></i>
+        <a href="{{ route('db-schema') }}" class="sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('db-schema') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition">
+            <i class="fas fa-database sidebar-icon"></i>
             <span class="sidebar-text">Database Schema</span>
         </a>
     </div>
 
-    @auth
-    @php
-        $avatarColor = substr(md5(Auth::user()->email), 0, 6);
-        $nameParts = explode(' ', Auth::user()->name);
-        if (count($nameParts) >= 2) {
-            $initials = strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[1], 0, 1));
-        } else {
-            $initials = strtoupper(substr(Auth::user()->name, 0, 2));
-        }
-    @endphp
-    <div class="mt-auto pt-3 border-t border-gray-200">
-        <div class="sidebar-link flex items-center px-4 py-3 rounded-lg cursor-default transition hover:bg-gray-50" title="{{ Auth::user()->name }}">
-            <div class="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-extrabold flex-shrink-0 sidebar-icon mr-3" style="border: 1.5px solid #{{ $avatarColor }}; color: #{{ $avatarColor }};">
-                {{ $initials }}
-            </div>
-            <span class="sidebar-text text-sm font-semibold text-gray-700 truncate">{{ Auth::user()->name }}</span>
-        </div>
+    <!-- Bottom Actions Section (Settings & Support) -->
+    <div class="mt-auto pt-3 space-y-1 border-t border-gray-100">
+        <!-- Settings -->
+        <a href="{{ route('settings') }}" class="sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('settings') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition">
+            <i class="fas fa-gear sidebar-icon"></i>
+            <span class="sidebar-text">Settings</span>
+        </a>
+        <!-- Support -->
+        <a href="{{ route('support') }}" class="sidebar-link flex items-center px-4 py-2.5 {{ request()->routeIs('support') ? 'bg-[#e8f5e9] text-[#1b5e20] font-semibold border-l-4 border-[#2e7d32]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition">
+            <i class="fas fa-circle-question sidebar-icon"></i>
+            <span class="sidebar-text">Support</span>
+        </a>
     </div>
-    @endauth
+
 </aside>
 
 <div id="sidebar-backdrop" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
@@ -116,10 +102,10 @@
             height: 100vh !important;
             width: 18rem !important;
             z-index: 50 !important;
-            padding: 1rem !important;
+            padding: 1rem 0 !important;
             transform: translateX(-100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
         }
         .sidebar-container.mobile-open {
             transform: translateX(0);
@@ -132,7 +118,7 @@
         }
         .sidebar-container .sidebar-link {
             width: 100% !important;
-            padding: 0.75rem 1rem !important;
+            padding: 0.75rem 1.25rem !important;
             justify-content: flex-start !important;
         }
         .sidebar-container .sidebar-icon {
@@ -145,46 +131,77 @@
 
     @media (min-width: 768px) {
         .sidebar-container {
-            position: sticky;
-            top: 65px;
-            height: calc(100vh - 65px);
-            width: 5rem;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 1rem !important;
+            position: fixed;
+            top: 52px;
+            left: 0;
+            height: calc(100vh - 52px);
+            width: 4.75rem;
+            z-index: 40;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0.75rem 0 !important;
             box-shadow: none;
         }
         .sidebar-container:hover {
-            width: 18rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            width: 16rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+        main {
+            transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-container:hover + main {
+            margin-left: 16rem !important;
         }
         .sidebar-container .sidebar-link {
-            padding-left: 1rem !important;
+            height: 2.75rem;
+            padding-left: 1.375rem !important;
             padding-right: 1rem !important;
             justify-content: flex-start !important;
+            font-size: 13.5px !important;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            border-left: 4px solid transparent !important;
+            box-sizing: border-box !important;
         }
-        .sidebar-container:not(:hover) .sidebar-icon {
-            margin-right: 0 !important;
+        .sidebar-container .sidebar-link.bg-\[\#e8f5e9\] {
+            border-left-color: #2e7d32 !important;
         }
-        .sidebar-container:not(:hover) .sidebar-header {
-            display: none;
+        .sidebar-icon {
+            width: 1.5rem !important;
+            min-width: 1.5rem !important;
+            height: 1.5rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 14px !important;
+            flex-shrink: 0 !important;
+            margin-right: 0.75rem !important;
         }
-        .sidebar-container:not(:hover) .sidebar-chevron {
-            display: none !important;
+        .submenu-container .sidebar-link {
+            font-size: 12px !important;
+            height: 2.25rem;
+            padding-left: 1.375rem !important;
         }
-        .sidebar-container .sidebar-text,
-        .sidebar-container .sidebar-header,
-        .sidebar-container .sidebar-chevron {
+        .sidebar-container:not(:hover) .sidebar-text {
             opacity: 0;
             visibility: hidden;
-            white-space: nowrap;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
+            pointer-events: none;
+        }
+        .sidebar-container:not(:hover) .sidebar-chevron {
+            opacity: 0;
+            visibility: hidden;
+            display: none !important;
+        }
+        .sidebar-container .sidebar-text {
+            transition: opacity 0.15s ease 0.05s, visibility 0.15s ease 0.05s;
+        }
+        .sidebar-container .sidebar-chevron {
+            transition: opacity 0.15s ease 0.05s, visibility 0.15s ease 0.05s;
         }
         .sidebar-container:hover .sidebar-text,
-        .sidebar-container:hover .sidebar-header,
         .sidebar-container:hover .sidebar-chevron {
             opacity: 1;
             visibility: visible;
-            transition-delay: 0.1s;
         }
     }
 
@@ -201,7 +218,6 @@
         .sidebar-container:not(:hover) .submenu-container {
             max-height: 0 !important;
             opacity: 0 !important;
-            padding-left: 0 !important;
         }
     }
 </style>
@@ -240,7 +256,7 @@
             });
         });
 
-        const activeSubLink = document.querySelector('.submenu-container .bg-green-700');
+        const activeSubLink = document.querySelector('.submenu-container .bg-[#e8f5e9]');
         if (activeSubLink) {
             const parentSubmenu = activeSubLink.closest('.submenu-container');
             if (parentSubmenu) {

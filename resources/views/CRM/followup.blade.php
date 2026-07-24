@@ -10,8 +10,8 @@
 <div class="crm-page space-y-6">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Follow-Ups</h1>
-            <p class="text-sm text-gray-500 mt-1">Organize customer follow-ups and next-step reminders.</p>
+            <h1 class="text-xl font-bold text-gray-900 tracking-tight">Follow-Ups</h1>
+            <p class="text-xs text-gray-500 mt-1">Organize customer follow-ups and next-step reminders.</p>
         </div>
     </div>
 

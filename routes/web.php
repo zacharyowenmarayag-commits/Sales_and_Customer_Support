@@ -26,6 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/SPRF', [DashboardController::class, 'sprf'])->name('sprf');
     Route::get('/som', [DashboardController::class, 'som'])->name('som');
     Route::get('/db-schema', [DashboardController::class, 'dbSchema'])->name('db-schema');
+    Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
+    Route::post('/settings/preferences', [DashboardController::class, 'updatePreferences'])->name('settings.preferences');
+    Route::post('/settings/notifications', [DashboardController::class, 'updateNotifications'])->name('settings.notifications');
+    Route::get('/support', [DashboardController::class, 'support'])->name('support');
 
     Route::get('/som/new-order', [DashboardController::class, 'somNewOrder'])->name('som.new-order');
     Route::post('/som/new-order', [DashboardController::class, 'somSaveOrder'])->name('som.save-order');
@@ -34,8 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'crmDashboard'])->name('dashboard');
         Route::get('/dashboard', [DashboardController::class, 'crmDashboard'])->name('dashboard.page');
 
-        Route::get('/customers', [DashboardController::class, 'crmCustomers'])->name('customers');
-        Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])->name('customers.store');
+        Route::redirect('/customers', '/crm/dashboard')->name('customers');
 
         Route::get('/purchase-history', [\App\Http\Controllers\PurchaseHistoryController::class, 'index'])->name('purchaseHistory');
         Route::get('/purchase-history/export', [\App\Http\Controllers\PurchaseHistoryController::class, 'export'])->name('purchaseHistory.export');

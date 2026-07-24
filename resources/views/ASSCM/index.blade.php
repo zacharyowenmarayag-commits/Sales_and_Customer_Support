@@ -5,8 +5,8 @@
 @section('content')
 <div class="space-y-6" id="mainContent">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">After-Sales Support and Case Management</h1>
-        <p class="text-sm text-gray-500 mt-1">Supports issue resolution, service requests, and warranty claims after the sale is completed.</p>
+        <h1 class="text-xl font-bold text-gray-900 tracking-tight">After-Sales Support and Case Management</h1>
+        <p class="text-xs text-gray-500 mt-1">Supports issue resolution, service requests, and warranty claims after the sale is completed.</p>
     </div>
 
     @if (session('success'))
@@ -51,44 +51,28 @@
         </div>
     </div>
 
-    {{-- Status filter pills --}}
-    @php
-        $caseFilters = [
-            ['label' => 'All',       'value' => '',          'color' => 'gray'],
-            ['label' => 'Open',      'value' => 'Open',      'color' => 'amber'],
-            ['label' => 'Pending',   'value' => 'Pending',   'color' => 'blue'],
-            ['label' => 'Escalated', 'value' => 'Escalated', 'color' => 'purple'],
-            ['label' => 'Resolved',  'value' => 'Resolved',  'color' => 'emerald'],
-        ];
-    @endphp
-    <div class="flex flex-wrap gap-2">
-        @foreach ($caseFilters as $cf)
-            @php
-                $isActive = $activeStatus === $cf['value'];
-                $baseUrl  = url()->current();
-                $params   = array_filter(['q' => $q, 'status' => $cf['value']]);
-                $href     = $baseUrl . ($params ? '?' . http_build_query($params) : '');
-                $c        = $cf['color'];
-                $activeClass = match($c) {
-                    'amber'   => 'bg-amber-500 text-white border-amber-500',
-                    'blue'    => 'bg-blue-600 text-white border-blue-600',
-                    'purple'  => 'bg-purple-600 text-white border-purple-600',
-                    'emerald' => 'bg-emerald-600 text-white border-emerald-600',
-                    default   => 'bg-gray-700 text-white border-gray-700',
-                };
-                $inactiveClass = match($c) {
-                    'amber'   => 'border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100',
-                    'blue'    => 'border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100',
-                    'purple'  => 'border-purple-200 bg-purple-50 text-purple-600 hover:bg-purple-100',
-                    'emerald' => 'border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100',
-                    default   => 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50',
-                };
-            @endphp
-            <a href="{{ $href }}"
-               class="px-4 py-1 text-xs border rounded-md font-semibold transition {{ $isActive ? $activeClass : $inactiveClass }}">
-                {{ $cf['label'] }}
-            </a>
-        @endforeach
+    {{-- Status filter pills (JS client-side, no page reload) --}}
+    <div class="flex flex-wrap gap-2" id="asscmFilterRow">
+        <button onclick="filterCases('', this)" data-filter=""
+            data-inactive="border-gray-200 bg-white text-gray-600"
+            data-active="bg-gray-700 text-white border-gray-700"
+            class="asscm-filter-btn active px-3 py-1 text-xs border rounded-lg font-semibold transition bg-gray-700 text-white border-gray-700">All</button>
+        <button onclick="filterCases('Open', this)" data-filter="Open"
+            data-inactive="border-amber-200 bg-amber-50 text-amber-600"
+            data-active="bg-amber-500 text-white border-amber-500"
+            class="asscm-filter-btn px-3 py-1 text-xs border rounded-lg font-semibold transition border-amber-200 bg-amber-50 text-amber-600">Open</button>
+        <button onclick="filterCases('Pending', this)" data-filter="Pending"
+            data-inactive="border-blue-200 bg-blue-50 text-blue-600"
+            data-active="bg-blue-600 text-white border-blue-600"
+            class="asscm-filter-btn px-3 py-1 text-xs border rounded-lg font-semibold transition border-blue-200 bg-blue-50 text-blue-600">Pending</button>
+        <button onclick="filterCases('Escalated', this)" data-filter="Escalated"
+            data-inactive="border-purple-200 bg-purple-50 text-purple-600"
+            data-active="bg-purple-600 text-white border-purple-600"
+            class="asscm-filter-btn px-3 py-1 text-xs border rounded-lg font-semibold transition border-purple-200 bg-purple-50 text-purple-600">Escalated</button>
+        <button onclick="filterCases('Resolved', this)" data-filter="Resolved"
+            data-inactive="border-emerald-200 bg-emerald-50 text-emerald-600"
+            data-active="bg-emerald-600 text-white border-emerald-600"
+            class="asscm-filter-btn px-3 py-1 text-xs border rounded-lg font-semibold transition border-emerald-200 bg-emerald-50 text-emerald-600">Resolved</button>
     </div>
 
     {{-- Cases table --}}
@@ -123,7 +107,7 @@
                         };
                         $assignedDisplay = $case->assigned_to ?: '—';
                     @endphp
-                    <tr class="hover:bg-gray-50/70 transition">
+                    <tr class="hover:bg-gray-50/70 transition asscm-case-row" data-status="{{ $case->status }}">
                         <td class="py-4 px-6 font-medium text-emerald-600">{{ $case->case_id }}</td>
                         <td class="py-4 px-6 font-semibold text-gray-700">
                             {{ $case->customer ? $case->customer->first_name . ' ' . $case->customer->last_name : '—' }}
@@ -250,6 +234,30 @@
 @push('scripts')
 <script>
     const mainContent   = document.getElementById('mainContent');
+
+    // Smooth client-side filter (no page reload)
+    const asscmFilterColors = {
+        '':          { inactive: 'border-gray-200 bg-white text-gray-600',          active: 'bg-gray-700 text-white border-gray-700' },
+        'Open':      { inactive: 'border-amber-200 bg-amber-50 text-amber-600',     active: 'bg-amber-500 text-white border-amber-500' },
+        'Pending':   { inactive: 'border-blue-200 bg-blue-50 text-blue-600',        active: 'bg-blue-600 text-white border-blue-600' },
+        'Escalated': { inactive: 'border-purple-200 bg-purple-50 text-purple-600',  active: 'bg-purple-600 text-white border-purple-600' },
+        'Resolved':  { inactive: 'border-emerald-200 bg-emerald-50 text-emerald-600', active: 'bg-emerald-600 text-white border-emerald-600' },
+    };
+
+    function filterCases(status, btn) {
+        // Reset all pills to their inactive color classes
+        document.querySelectorAll('.asscm-filter-btn').forEach(b => {
+            b.dataset.inactive.split(' ').forEach(c => { if(c) b.classList.add(c); });
+            b.dataset.active.split(' ').forEach(c => { if(c) b.classList.remove(c); });
+        });
+        // Apply active color classes to clicked pill
+        btn.dataset.active.split(' ').forEach(c => { if(c) btn.classList.add(c); });
+        btn.dataset.inactive.split(' ').forEach(c => { if(c) btn.classList.remove(c); });
+
+        document.querySelectorAll('.asscm-case-row').forEach(row => {
+            row.style.display = (!status || row.dataset.status === status) ? '' : 'none';
+        });
+    }
 
     // ─── View Case Modal ───
     function openCaseViewModal(caseId) {

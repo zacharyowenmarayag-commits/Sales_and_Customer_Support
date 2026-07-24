@@ -5,8 +5,8 @@
 @section('content')
 <div class="space-y-6">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">Database Schema (ERD)</h1>
-        <p class="text-sm text-gray-500 mt-1">Entity-Relationship Diagram representing the application database tables and their linkages.</p>
+        <h1 class="text-xl font-bold text-gray-900 tracking-tight">Database Schema (ERD)</h1>
+        <p class="text-xs text-gray-500 mt-1">Entity-Relationship Diagram representing the application database tables and their linkages.</p>
     </div>
 
     <!-- ERD Visualization Container using a premium glassmorphic style -->

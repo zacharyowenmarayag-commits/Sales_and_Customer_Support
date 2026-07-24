@@ -15,18 +15,18 @@
         : $deals;
 @endphp
 
-<div class="bg-[#fffefb] border border-[#eedcbe] rounded-[24px] p-8 shadow-sm">
-    <div class="flex justify-between items-center mb-5">
-        <h2 class="text-[19px] font-bold text-gray-900 m-0">{{ $title }}</h2>
+<div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-base font-bold text-gray-900 m-0">{{ $title }}</h2>
         @if ($slot->isNotEmpty())
             {{ $slot }}
         @endif
     </div>
 
-    <div class="mx-[-32px] bg-[#faf8f2] border-y border-[#eedcbe] px-8 py-2 overflow-x-auto">
+    <div class="mx-[-24px] bg-[#f0f9f1] border-y border-green-200 px-6 py-2 overflow-x-auto">
         <table class="w-full text-xs text-left text-gray-800 border-collapse">
             <thead>
-                <tr class="border-b border-[#eedcbe]" data-table-id="{{ $tableId }}">
+                <tr class="border-b border-green-200" data-table-id="{{ $tableId }}">
                     <th class="pb-3 px-2 font-bold text-gray-950 select-none cursor-pointer hover:text-blue-600 transition" onclick="sortSPRFTable('{{ $tableId }}', 0, 'string', this)">
                         <span class="flex items-center gap-1">Deal Name <i class="fas fa-sort text-[10px] text-gray-400"></i></span>
                     </th>
@@ -49,12 +49,12 @@
                     </th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-[#f5f2e9]" id="{{ $tableId }}">
+            <tbody class="divide-y divide-green-100/80" id="{{ $tableId }}">
                 @forelse ($rows as $deal)
                     @if (!empty($q) && !(stripos($deal->name, $q) !== false || stripos($deal->customer, $q) !== false || stripos($deal->owner, $q) !== false))
                         @continue
                     @endif
-                    <tr class="hover:bg-[#fffcf4]/50 transition duration-150">
+                    <tr class="hover:bg-green-50/40 transition duration-150">
                         <td class="py-4 px-2 font-medium text-gray-950">{!! highlightMatch($deal->name, $q) !!}</td>
                         <td class="py-4 px-2 text-gray-800">{!! highlightMatch($deal->customer, $q) !!}</td>
                         <td class="py-4 px-2">

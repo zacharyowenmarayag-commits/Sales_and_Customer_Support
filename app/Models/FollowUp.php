@@ -16,6 +16,7 @@ class FollowUp extends Model
      */
     public const STATUSES = [
         'Pending',
+        'In Progress',
         'Completed',
         'Cancelled',
     ];
