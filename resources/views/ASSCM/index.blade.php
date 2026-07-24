@@ -4,14 +4,9 @@
 
 @section('content')
 <div class="space-y-6" id="mainContent">
-    <div class="flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">After-Sales Support and Case Management</h1>
-            <p class="text-sm text-gray-500 mt-1">Supports issue resolution, service requests, and warranty claims after the sale is completed.</p>
-        </div>
-        <button type="button" id="openCaseModalBtn" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-            <i class="fas fa-plus mr-2"></i> New case
-        </button>
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">After-Sales Support and Case Management</h1>
+        <p class="text-sm text-gray-500 mt-1">Supports issue resolution, service requests, and warranty claims after the sale is completed.</p>
     </div>
 
     @if (session('success'))
@@ -152,7 +147,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-8 px-6 text-center text-gray-500">No cases found. Click "New case" to create one.</td>
+                        <td colspan="7" class="py-8 px-6 text-center text-gray-500">No cases found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -161,64 +156,7 @@
     </div>
 </div>
 
-{{-- New Case Modal --}}
-<div id="caseModalOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-white/60 opacity-0 pointer-events-none transition-opacity duration-200">
-    <div class="bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-7 transform translate-y-1.5 transition-transform duration-200" id="caseModalCard">
-        <h2 class="text-base font-bold text-gray-900 mb-5">New Support Case</h2>
 
-        <form action="{{ route('asscm.store') }}" method="POST" id="caseForm">
-            @csrf
-
-            <div class="mb-4">
-                <label for="customer_id" class="block text-sm font-semibold text-gray-700 mb-1.5">Customer</label>
-                <select name="customer_id" id="customer_id"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 @error('customer_id') border-red-400 @enderror"
-                    required>
-                    <option value="" disabled selected>Select customer</option>
-                    @foreach ($customers as $customer)
-                        <option value="{{ $customer->customer_id }}" {{ old('customer_id') === $customer->customer_id ? 'selected' : '' }}>
-                            {{ $customer->first_name }} {{ $customer->last_name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('customer_id')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="mb-4">
-                <label for="issue" class="block text-sm font-semibold text-gray-700 mb-1.5">Issue</label>
-                <textarea name="issue" id="issue" rows="4" placeholder="Describe the issue..."
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 @error('issue') border-red-400 @enderror"
-                    required>{{ old('issue') }}</textarea>
-                @error('issue')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="mb-4">
-                <label for="priority" class="block text-sm font-semibold text-gray-700 mb-1.5">Priority</label>
-                <select name="priority" id="priority"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 @error('priority') border-red-400 @enderror"
-                    required>
-                    <option value="" disabled selected>Select priority</option>
-                    <option value="Low"    {{ old('priority') === 'Low'    ? 'selected' : '' }}>Low</option>
-                    <option value="Medium" {{ old('priority') === 'Medium' ? 'selected' : '' }}>Medium</option>
-                    <option value="High"   {{ old('priority') === 'High'   ? 'selected' : '' }}>High</option>
-                </select>
-                @error('priority')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="flex justify-end mt-5">
-                <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition">
-                    Save Case
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 {{-- View Case Modal --}}
 <div id="caseViewModalOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-white/60 opacity-0 pointer-events-none transition-opacity duration-200">
     <div class="bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl p-7 transform translate-y-1.5 transition-transform duration-200 max-h-[90vh] overflow-y-auto" id="caseViewModalCard">
@@ -312,10 +250,6 @@
 @push('scripts')
 <script>
     const mainContent   = document.getElementById('mainContent');
-    const modalOverlay  = document.getElementById('caseModalOverlay');
-    const modalCard     = document.getElementById('caseModalCard');
-    const openModalBtn  = document.getElementById('openCaseModalBtn');
-    const caseForm      = document.getElementById('caseForm');
 
     // ─── View Case Modal ───
     function openCaseViewModal(caseId) {
@@ -437,31 +371,6 @@
         return div.innerHTML;
     }
 
-    function openModal() {
-        if (!modalOverlay || !modalCard) return;
-        modalOverlay.classList.remove('opacity-0', 'pointer-events-none');
-        modalOverlay.classList.add('opacity-100', 'pointer-events-auto');
-        modalCard.classList.remove('translate-y-1.5');
-        modalCard.classList.add('translate-y-0');
-        mainContent?.classList.add('blur-sm', 'pointer-events-none', 'select-none');
-    }
-
-    function closeModal() {
-        if (!modalOverlay || !modalCard) return;
-        modalOverlay.classList.add('opacity-0', 'pointer-events-none');
-        modalOverlay.classList.remove('opacity-100', 'pointer-events-auto');
-        modalCard.classList.add('translate-y-1.5');
-        modalCard.classList.remove('translate-y-0');
-        mainContent?.classList.remove('blur-sm', 'pointer-events-none', 'select-none');
-        caseForm?.reset();
-    }
-
-    openModalBtn?.addEventListener('click', openModal);
-
-    modalOverlay?.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
-    });
-
     document.getElementById('caseViewModalOverlay')?.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeCaseViewModal();
     });
@@ -476,8 +385,6 @@
                 closeCaseViewModal();
             } else if (!document.getElementById('caseEditModalOverlay')?.classList.contains('opacity-0')) {
                 closeCaseEditModal();
-            } else {
-                closeModal();
             }
         }
     });
@@ -507,9 +414,5 @@
             if (e.key === 'Enter') { clearTimeout(debounceTimer); applySearch(); }
         });
     }
-
-    @if ($errors->any())
-        openModal();
-    @endif
 </script>
 @endpush
