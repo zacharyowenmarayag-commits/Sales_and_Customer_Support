@@ -1,4 +1,4 @@
-<aside class="sidebar-container bg-white border-r border-gray-200 p-4 space-y-4 flex-shrink-0 overflow-y-auto overflow-x-hidden">
+<aside class="sidebar-container bg-white border-r border-gray-200 p-4 space-y-4 flex flex-col flex-shrink-0 overflow-y-auto overflow-x-hidden">
 
 
     <div class="space-y-2">
@@ -94,12 +94,13 @@
         }
     @endphp
     <div class="mt-auto pt-3 border-t border-gray-200">
-        <div class="flex items-center px-4 py-3 rounded-lg cursor-default transition hover:bg-gray-50" title="{{ Auth::user()->name }}">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="border: 2px solid #{{ $avatarColor }}; color: #{{ $avatarColor }};">
+        <div class="sidebar-link flex items-center px-4 py-3 rounded-lg cursor-default transition hover:bg-gray-50" title="{{ Auth::user()->name }}">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-extrabold flex-shrink-0 sidebar-icon mr-3" style="border: 1.5px solid #{{ $avatarColor }}; color: #{{ $avatarColor }};">
                 {{ $initials }}
             </div>
-            <span class="sidebar-text ml-3 text-sm font-semibold text-gray-700 truncate">{{ Auth::user()->name }}</span>
+            <span class="sidebar-text text-sm font-semibold text-gray-700 truncate">{{ Auth::user()->name }}</span>
         </div>
+    </div>
     @endauth
 </aside>
 
